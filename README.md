@@ -7,7 +7,7 @@ Allows to compare objects for changes. Written in Typescript and works for CJS a
 It returns an object containing only the differing properties, even in deeper nested structures.
 It can be configured to include the values from either object or even both.
 
-    import { diff } from "@jschirrmacher/object-utils"
+    import { diff } from "js-object-utils"
 
     console.log(diff({
         prop: 1,
@@ -44,7 +44,7 @@ See some more examples in the [tests](./src/objectUtils.test.ts), and have a [lo
 
 This function flattens an deeply nested object to one level. The 'paths' of the original nesting level are conserved as new property names like in the following example:
 
-    import { flattenObject } from "@jschirrmacher/object-utils"
+    import { flattenObject } from "js-object-utils"
 
     console.log(
         flattenObject({
@@ -65,7 +65,7 @@ Results in
 
 This function is the opposite of `flattenObject()`. It takes an object in the form of the result of `flattenObject()` and creates a new object, containing all necessary nesting levels:
 
-    import { inflateObject } from "@jschirrmacher/object-utils"
+    import { inflateObject } from "js-object-utils"
 
     console.log(
         inflateObject({ shallow: 1, 'deep.deeper.property': 'abc' })

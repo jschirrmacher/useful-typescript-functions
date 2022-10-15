@@ -1,5 +1,5 @@
 {
-  "name": "@jschirrmacher/object-utils",
+  "name": "js-object-utils",
   "version": "1.0.0",
   "description": "Finds differences between objects and other tools to handle objects in Typescript",
   "license": "Apache License v2.0",
