@@ -1,6 +1,6 @@
 type BaseType = string | number | boolean | null | undefined | Date
-interface Object {
-  [property: string]: BaseType | Object
+export interface StringIndexableObject {
+  [property: string]: BaseType | StringIndexableObject
 }
 type Arrayized = [string, BaseType]
 type FlatObject = Record<string, BaseType>
@@ -15,11 +15,11 @@ function union(arr1: string[], arr2: string[]) {
  * @param obj An object to be desctructured to a list of properties and values
  * @returns List of paths with values in the given object
  */
-export function arrayize(obj: BaseType | Object): Arrayized[] {
+export function arrayize(obj: BaseType | StringIndexableObject): Arrayized[] {
   const concat = (...parts: string[]) => parts.filter((x) => x).join(".")
 
   if (obj !== null && typeof obj === "object" && !(obj instanceof Date)) {
-    return Object.entries(obj as Object).flatMap(([key, value]) => {
+    return Object.entries(obj as StringIndexableObject).flatMap(([key, value]) => {
       if (value === null) {
         return [[key, value]]
       }
@@ -35,7 +35,7 @@ export function arrayize(obj: BaseType | Object): Arrayized[] {
  * @param obj original, deeply nested object
  * @returns flat object of only one level, but with property names containing paths of the original object
  */
-export function flattenObject(obj: BaseType | Object): FlatObject {
+export function flattenObject(obj: BaseType | StringIndexableObject): FlatObject {
   return Object.fromEntries(arrayize(obj))
 }
 
@@ -54,11 +54,11 @@ export function inflateObject(obj: FlatObject) {
       if (!pointer[p]) {
         pointer[p] = {}
       }
-      pointer = pointer[p] as Object
+      pointer = pointer[p] as StringIndexableObject
     })
     pointer[last] = value
     return obj
-  }, {} as Object)
+  }, {} as StringIndexableObject)
 }
 
 /**
@@ -69,7 +69,7 @@ export function inflateObject(obj: FlatObject) {
  * @param include defines which values the result should include
  * @returns a new object containing only the properties which are modified with the original and the modified values.
  */
-export function diff(from: Object, to: Object, include: "from" | "to" | "both" = "both") {
+export function diff(from: StringIndexableObject, to: StringIndexableObject, include: "from" | "to" | "both" = "both") {
   const values1 = flattenObject(from)
   const values2 = flattenObject(to)
 
