@@ -1,5 +1,7 @@
 # Object utilities
 
+A useful collection of object related functions.
+
 ## `diff()`
 
 Allows to compare objects for changes. Written in Typescript and works for CJS and ESM.
@@ -38,16 +40,16 @@ When using "to" instead of "from" the result will be:
 
 If there are no differences between the two objects, the returned value is an empty object.
 
-See some more examples in the [tests](./src/objectUtils.test.ts), and have a [look at the code](./src/index.ts) for the comment blocks of `diff()`. 
+See some more examples in the [tests](./src/diff.test.ts), and have a [look at the code](./src/diff.ts) for the comment blocks of `diff()`. 
 
-## `flattenObject()`
+## `flatten()`
 
 This function flattens an deeply nested object to one level. The 'paths' of the original nesting level are conserved as new property names like in the following example:
 
-    import { flattenObject } from "js-object-utils"
+    import { flatten } from "js-object-utils"
 
     console.log(
-        flattenObject({
+        flatten({
             shallow: 1,
             deep: {
                 deeper: {
@@ -61,14 +63,14 @@ Results in
 
     { shallow: 1, 'deep.deeper.property': 'abc' }
 
-## `inflateObject()`
+## `inflate()`
 
-This function is the opposite of `flattenObject()`. It takes an object in the form of the result of `flattenObject()` and creates a new object, containing all necessary nesting levels:
+This function is the opposite of `flatten()`. It takes an object in the form of the result of `flatten()` and creates a new object, containing all necessary nesting levels:
 
-    import { inflateObject } from "js-object-utils"
+    import { inflate } from "js-object-utils"
 
     console.log(
-        inflateObject({ shallow: 1, 'deep.deeper.property': 'abc' })
+        inflate({ shallow: 1, 'deep.deeper.property': 'abc' })
     )
 
 Results in
