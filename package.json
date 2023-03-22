@@ -29,6 +29,7 @@
   "scripts": {
     "test": "vitest",
     "prepublishOnly": "npm run build:esm && npm run build:cjs",
+    "build": "npm run build:esm && npm run build:cjs",
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:cjs": "tsc -p tsconfig.cjs.json"
   },
