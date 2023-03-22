@@ -76,3 +76,11 @@ This function is the opposite of `flatten()`. It takes an object in the form of 
 Results in
 
     { shallow: 1, deep: { deeper: { property: 'abc' } } }
+
+## `renameAttribute()`
+
+Rename an attribute in an object. This higher level function returns a mapper which can be used in an `Array.map()` call:
+
+    import { renameAttribute } from "js-object-utils"
+
+    const mappedUsers = users.map(renameAttribute("name", "firstName"))
