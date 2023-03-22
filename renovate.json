@@ -1,6 +1,47 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
+    "docker:disableMajor",
+    "group:recommended",
+    "group:monorepos"
+  ],
+  "labels": [
+    "Renovate"
+  ],
+  "onboarding": false,
+  "pinDigests": true,
+  "semanticCommitType": "cicd",
+  "rangeStrategy": "auto",
+  "golang": {
+    "enabled": false
+  },
+  "packageRules": [
+    {
+      "matchPackagePatterns": [
+        "^husky$"
+      ],
+      "updateTypes": [
+        "major"
+      ],
+      "enabled": false
+    },
+    {
+      "updateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
+      "automerge": true
+    },
+    {
+      "datasources": [
+        "docker"
+      ],
+      "packageNames": [
+        "node"
+      ],
+      "allowedVersions": "!/^18\\./"
+    }
   ]
 }
