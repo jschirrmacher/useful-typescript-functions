@@ -37,7 +37,7 @@
     "email": "joachim.schirrmacher@gmail.com"
   },
   "devDependencies": {
-    "@types/node": "18.8.3",
+    "@types/node": "18.15.5",
     "eslint": "8.25.0",
     "prettier": "2.7.1",
     "prettier-eslint": "15.0.1",
