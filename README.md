@@ -2,6 +2,11 @@
 
 A useful collection of object related functions.
 
+- [**diff** two objects](#diff)
+- [**flatten** an object to a list of attributes](#flatten)
+- [**inflate** an object from a list of attributes](#inflate)
+- [**renameAttribute** in an object](#renameAttribute)
+
 ## `diff()`
 
 Allows to compare objects for changes. Written in Typescript and works for CJS and ESM.
