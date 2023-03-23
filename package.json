@@ -1,6 +1,6 @@
 {
   "name": "js-object-utils",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Finds differences between objects and other tools to handle objects in Typescript",
   "license": "Apache License v2.0",
   "repository": {
