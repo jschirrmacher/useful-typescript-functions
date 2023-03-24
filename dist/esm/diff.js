@@ -1,4 +1,4 @@
-import { flatten, inflate } from "./flattenInflate";
+import { flatten, inflate } from "./flattenInflate.js";
 function union(arr1, arr2) {
     return [...new Set([...arr1, ...arr2])];
 }

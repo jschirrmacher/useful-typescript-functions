@@ -1,4 +1,4 @@
-import { Arrayized, BaseType, FlatObject, StringIndexableObject } from "./types";
+import { Arrayized, BaseType, FlatObject, StringIndexableObject } from "./types.js";
 /**
  * Creates a list of path - value pairs. The paths represent the nesting levels of the properties in the given object.
  *

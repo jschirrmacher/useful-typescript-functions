@@ -12,26 +12,19 @@
     "helper",
     "tools"
   ],
+  "types": "./dist/types/index.d.ts",
   "exports": {
-    ".": {
-      "import": {
-        "types": "./dist/esm/index.d.ts",
-        "default": "./dist/esm/index.js"
-      },
-      "require": {
-        "types": "./dist/cjs/index.d.ts",
-        "default": "./dist/cjs/index.js"
-      }
-    }
+    "require": "./dist/cjs/index.js",
+    "import": "./dist/esm/index.js",
+    "default": "./dist/esm/index.js"
   },
-  "main": "./dist/cjs/index.cjs",
-  "types": "./dist/cjs/index.d.ts",
   "scripts": {
     "test": "vitest",
-    "prepublishOnly": "npm run build:esm && npm run build:cjs",
-    "build": "npm run build:esm && npm run build:cjs",
-    "build:esm": "tsc -p tsconfig.esm.json",
-    "build:cjs": "tsc -p tsconfig.cjs.json"
+    "prepublishOnly": "npm run build",
+    "build": "npm-run-all build:clean build:compile build:module",
+    "build:clean": "rm -rf ./dist",
+    "build:compile": "tsc -b ./tsconfig.cjs.json ./tsconfig.esm.json ./tsconfig.types.json",
+    "build:module": "echo '{\"type\": \"module\"}' > ./dist/esm/package.json"
   },
   "author": {
     "name": "Joachim Schirrmacher",
@@ -40,6 +33,7 @@
   "devDependencies": {
     "@types/node": "18.15.6",
     "eslint": "8.36.0",
+    "npm-run-all": "^4.1.5",
     "prettier": "2.8.6",
     "prettier-eslint": "15.0.1",
     "ts-node": "10.9.1",

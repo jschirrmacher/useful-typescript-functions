@@ -1,14 +1,3 @@
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
 /**
  * Rename an attribute in an object. This higher level function returns a mapper which can be used
  * in an `Array.map()` call. Example:
@@ -21,8 +10,8 @@ var __rest = (this && this.__rest) || function (s, e) {
  */
 export function renameAttribute(from, to) {
     return (obj) => {
-        const _a = obj, _b = from, value = _a[_b], others = __rest(_a, [typeof _b === "symbol" ? _b : _b + ""]);
-        return Object.assign(Object.assign({}, others), { [to]: value });
+        const { [from]: value, ...others } = obj;
+        return { ...others, [to]: value };
     };
 }
 //# sourceMappingURL=renameAttribute.js.map

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.diff = void 0;
-const flattenInflate_1 = require("./flattenInflate");
+const flattenInflate_js_1 = require("./flattenInflate.js");
 function union(arr1, arr2) {
     return [...new Set([...arr1, ...arr2])];
 }
@@ -14,8 +14,8 @@ function union(arr1, arr2) {
  * @returns a new object containing only the properties which are modified with the original and the modified values.
  */
 function diff(from, to, include = "both") {
-    const values1 = (0, flattenInflate_1.flatten)(from);
-    const values2 = (0, flattenInflate_1.flatten)(to);
+    const values1 = (0, flattenInflate_js_1.flatten)(from);
+    const values2 = (0, flattenInflate_js_1.flatten)(to);
     const valueMapping = {
         from: (p) => [p, values1[p]],
         to: (p) => [p, values2[p]],
@@ -24,7 +24,7 @@ function diff(from, to, include = "both") {
     const changes = union(Object.keys(values1), Object.keys(values2))
         .filter((p) => values1[p] !== values2[p])
         .map((p) => valueMapping[include](p));
-    return (0, flattenInflate_1.inflate)(Object.fromEntries(changes));
+    return (0, flattenInflate_js_1.inflate)(Object.fromEntries(changes));
 }
 exports.diff = diff;
 //# sourceMappingURL=diff.js.map

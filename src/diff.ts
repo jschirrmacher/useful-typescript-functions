@@ -1,5 +1,5 @@
-import { StringIndexableObject } from "./types"
-import { flatten, inflate } from "./flattenInflate"
+import { StringIndexableObject } from "./types.js"
+import { flatten, inflate } from "./flattenInflate.js"
 
 function union(arr1: string[], arr2: string[]) {
   return [...new Set([...arr1, ...arr2])]

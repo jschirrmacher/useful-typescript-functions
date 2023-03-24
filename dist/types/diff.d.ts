@@ -1,4 +1,4 @@
-import { StringIndexableObject } from "./types";
+import { StringIndexableObject } from "./types.js";
 /**
  * Find the differences between two objects.
  *
