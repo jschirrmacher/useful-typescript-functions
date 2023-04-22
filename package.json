@@ -20,11 +20,13 @@
   },
   "scripts": {
     "test": "vitest",
-    "prepublishOnly": "npm run build",
     "build": "npm-run-all build:clean build:compile build:module",
     "build:clean": "rm -rf ./dist",
     "build:compile": "tsc -b ./tsconfig.cjs.json ./tsconfig.esm.json ./tsconfig.types.json",
-    "build:module": "echo '{\"type\": \"module\"}' > ./dist/esm/package.json"
+    "build:module": "echo '{\"type\": \"module\"}' > ./dist/esm/package.json",
+    "version:patch": "npm run build && npm version patch && git push --follow-tags && npm publish",
+    "version:minor": "npm run build && npm version minor && git push --follow-tags && npm publish",
+    "version:major": "npm run build && npm version major && git push --follow-tags && npm publish"
   },
   "author": {
     "name": "Joachim Schirrmacher",
