@@ -19,15 +19,19 @@
     "default": "./dist/esm/index.js"
   },
   "scripts": {
-    "test": "vitest",
-    "lint": "eslint src/*.ts",
+    "test": "npm run lint && npm run test:unit",
+    "test:lint": "eslint src/*.ts",
+    "test:unit": "vitest --run",
+    "test:watch": "vitest",
+    "test:coverage": "npm run test:unit -- --coverage",
     "build": "npm-run-all build:clean build:compile build:module",
     "build:clean": "rm -rf ./dist",
     "build:compile": "tsc -b ./tsconfig.cjs.json ./tsconfig.esm.json ./tsconfig.types.json",
     "build:module": "echo '{\"type\": \"module\"}' > ./dist/esm/package.json",
     "version:patch": "npm run build && npm version patch && git push --follow-tags && npm publish",
     "version:minor": "npm run build && npm version minor && git push --follow-tags && npm publish",
-    "version:major": "npm run build && npm version major && git push --follow-tags && npm publish"
+    "version:major": "npm run build && npm version major && git push --follow-tags && npm publish",
+    "update": "npx -y npm-check-updates -d -u -e 2"
   },
   "author": {
     "name": "Joachim Schirrmacher",
@@ -37,6 +41,7 @@
     "@types/node": "18.15.12",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "@typescript-eslint/parser": "^5.59.0",
+    "@vitest/coverage-c8": "^0.30.1",
     "eslint": "^8.38.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
