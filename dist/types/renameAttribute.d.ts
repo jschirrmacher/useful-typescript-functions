@@ -6,6 +6,6 @@
  *
  * @param from previous name of attribute
  * @param to new name of attribute
- * @returns (obj: Record<string, any>) => T
+ * @returns (obj: Record<string, unknown>) => T
  */
 export declare function renameAttribute<T extends object>(from: string, to: keyof T): (obj: Record<string, unknown>) => T;

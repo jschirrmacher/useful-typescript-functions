@@ -9,7 +9,7 @@ exports.renameAttribute = void 0;
  *
  * @param from previous name of attribute
  * @param to new name of attribute
- * @returns (obj: Record<string, any>) => T
+ * @returns (obj: Record<string, unknown>) => T
  */
 function renameAttribute(from, to) {
     return (obj) => {
