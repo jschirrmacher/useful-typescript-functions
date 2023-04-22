@@ -20,6 +20,7 @@
   },
   "scripts": {
     "test": "vitest",
+    "lint": "eslint src/*.ts",
     "build": "npm-run-all build:clean build:compile build:module",
     "build:clean": "rm -rf ./dist",
     "build:compile": "tsc -b ./tsconfig.cjs.json ./tsconfig.esm.json ./tsconfig.types.json",
@@ -34,7 +35,11 @@
   },
   "devDependencies": {
     "@types/node": "18.15.12",
-    "eslint": "8.38.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.0",
+    "@typescript-eslint/parser": "^5.59.0",
+    "eslint": "^8.38.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "npm-run-all": "^4.1.5",
     "prettier": "2.8.7",
     "prettier-eslint": "15.0.1",

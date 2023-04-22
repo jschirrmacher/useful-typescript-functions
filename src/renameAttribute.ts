@@ -9,7 +9,7 @@
  * @returns (obj: Record<string, any>) => T
  */
 export function renameAttribute<T extends object>(from: string, to: keyof T) {
-  return (obj: Record<string, any>) => {
+  return (obj: Record<string, unknown>) => {
     const { [from]: value, ...others } = obj
     return { ...others, [to]: value } as T
   }
