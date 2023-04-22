@@ -1,0 +1,27 @@
+import { describe, expect, it } from "vitest"
+import { mutate } from './mutate';
+
+type ObjectUnderTest = {
+  mutable: string
+  immutable: number
+}
+
+const original: ObjectUnderTest = { mutable: "a", immutable: 1 }
+const attributes = ["mutable"] as const
+
+describe("mutate", () => {
+  it("should restrict changes to allowed attributes", () => {
+    const result = mutate<ObjectUnderTest>(original, attributes, { mutable: "b", immutable: 2 })
+    expect(result).toStrictEqual({ mutable: "b", immutable: 1 })
+  })
+
+  it("should ignore unknown attributes", () => {
+    const result = mutate(original, attributes, { other: 42 })
+    expect(result).toStrictEqual({ mutable: "a", immutable: 1 })
+  })
+
+  it("should be possible to empty a mutable field", () => {
+    const result = mutate(original, attributes, { mutable: null })
+    expect(result).toStrictEqual({ mutable: null, immutable: 1 })
+  })
+})
