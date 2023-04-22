@@ -19,7 +19,7 @@
     "default": "./dist/esm/index.js"
   },
   "scripts": {
-    "test": "npm run lint && npm run test:unit",
+    "test": "npm run test:lint && npm run test:unit",
     "test:lint": "eslint src/*.ts",
     "test:unit": "vitest --run",
     "test:watch": "vitest",
