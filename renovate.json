@@ -15,32 +15,14 @@
   "golang": {
     "enabled": false
   },
+  "schedule": ["at 5:00 pm on Saturday"],
   "packageRules": [
     {
-      "matchPackagePatterns": [
-        "^husky$"
-      ],
-      "updateTypes": [
-        "major"
-      ],
-      "enabled": false
-    },
-    {
-      "updateTypes": [
-        "minor",
-        "patch",
-        "pin",
-        "digest"
-      ],
+      "updateTypes": ["minor", "patch", "pin", "digest"],
       "automerge": true
     },
     {
-      "datasources": [
-        "docker"
-      ],
-      "packageNames": [
-        "node"
-      ],
+      "packageNames": ["node"],
       "allowedVersions": "!/^18\\./"
     }
   ]
