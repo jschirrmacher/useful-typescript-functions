@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mutate } from './mutate';
+import { mutate, getMutation } from "./mutate"
 
 type ObjectUnderTest = {
   mutable: string
@@ -8,6 +8,13 @@ type ObjectUnderTest = {
 
 const original: ObjectUnderTest = { mutable: "a", immutable: 1 }
 const attributes = ["mutable"] as const
+
+describe("getMutation", () => {
+  it("return a list of changes", () => {
+    const result = getMutation(original, attributes, { mutable: "b", immutable: 2, other: 42 })
+    expect(result).toEqual({ mutable: "b" })
+  })
+})
 
 describe("mutate", () => {
   it("should restrict changes to allowed attributes", () => {

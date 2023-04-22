@@ -3,7 +3,6 @@ import { arrayize, flatten } from "./flattenInflate"
 
 describe("flattenInflate", () => {
   describe("arrayize", () => {
-
     it("should return a list of property values", () => {
       expect(arrayize(null)).toEqual([["", null]])
       expect(arrayize({ a: 1 })).toEqual([["a", 1]])
@@ -16,7 +15,7 @@ describe("flattenInflate", () => {
         ["b.a", 2],
       ])
     })
-  
+
     it("should recognize Dates", () => {
       const date = new Date()
       expect(arrayize({ a: date })).toEqual([["a", date]])

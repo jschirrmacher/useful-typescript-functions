@@ -23,13 +23,16 @@ It can be configured to include the values from either object or even both.
 ```ts
 import { diff } from "js-object-utils"
 
-const result = diff({
-  prop: 1,
-  date: new Date("2022-10-15T07:43:00")
-}, {
-  prop: 2,
-  date: new Date()
-})
+const result = diff(
+  {
+    prop: 1,
+    date: new Date("2022-10-15T07:43:00"),
+  },
+  {
+    prop: 2,
+    date: new Date(),
+  }
+)
 ```
 
 Returns (at least as of writing this example here in UTC+2):
@@ -52,7 +55,7 @@ const to = diff({ prop: 1 } { prop: 2 }, "to")
 
 If there are no differences between the two objects, the returned value is an empty object.
 
-See some more examples in the [tests](./src/diff.test.ts), and have a [look at the code](./src/diff.ts) for the comment blocks of `diff()`. 
+See some more examples in the [tests](./src/diff.test.ts), and have a [look at the code](./src/diff.ts) for the comment blocks of `diff()`.
 
 ## `flatten()`
 
@@ -65,9 +68,9 @@ const flatted = flatten({
   shallow: 1,
   deep: {
     deeper: {
-      property: "abc"
-    }
-  }
+      property: "abc",
+    },
+  },
 })
 // ->  { shallow: 1, 'deep.deeper.property': 'abc' }
 ```
@@ -79,7 +82,7 @@ This function is the opposite of `flatten()`. It takes an object in the form of 
 ```ts
 import { inflate } from "js-object-utils"
 
-const inflated = inflate({ shallow: 1, 'deep.deeper.property': 'abc' })
+const inflated = inflate({ shallow: 1, "deep.deeper.property": "abc" })
 // -> { shallow: 1, deep: { deeper: { property: 'abc' }}}
 ```
 
@@ -90,12 +93,24 @@ Rename an attribute in an object. This higher level function returns a mapper wh
 ```ts
 import { renameAttribute } from "js-object-utils"
 
-const users = [
-  { name: "john" },
-  { name: "arnold" },
-]
+const users = [{ name: "john" }, { name: "arnold" }]
 const mappedUsers = users.map(renameAttribute("name", "firstName"))
 // -> [{ firstName: "john" }, { firstName: "arnold" }]
+```
+
+## `getMutation`
+
+Returns an object containing allowed changes to an original object.
+It ignores both, attributes not contained in the original object, and attributes not allowed to be changed.
+
+```ts
+import { getMutation } from "js-object-utils"
+
+const original = { mutable: 1, immutable: 2 }
+const change = { mutable: 3, immutable: 4, other: 5 }
+
+const mutation = getMutation(original, ["mutable"], change)
+// -> { mutable: 3 }
 ```
 
 ## `mutate`

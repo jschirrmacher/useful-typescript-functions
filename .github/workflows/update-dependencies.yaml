@@ -50,7 +50,7 @@ jobs:
             [1]: https://github.com/peter-evans/create-pull-request
           delete-branch: true
           labels: automated pr
-          
+
       - name: Enable auth-merge
         if: steps.gitCheck.outputs.modified == 'true'
         uses: peter-evans/enable-pull-request-automerge@v3

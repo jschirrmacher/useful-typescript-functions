@@ -19,8 +19,8 @@ export function diff(from, to, include = "both") {
         both: (p) => [p, { from: values1[p], to: values2[p] }],
     };
     const changes = union(Object.keys(values1), Object.keys(values2))
-        .filter((p) => values1[p] !== values2[p])
-        .map((p) => valueMapping[include](p));
+        .filter(p => values1[p] !== values2[p])
+        .map(p => valueMapping[include](p));
     return inflate(Object.fromEntries(changes));
 }
 //# sourceMappingURL=diff.js.map

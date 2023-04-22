@@ -13,7 +13,11 @@ function union(arr1: string[], arr2: string[]) {
  * @param include defines which values the result should include
  * @returns a new object containing only the properties which are modified with the original and the modified values.
  */
-export function diff(from: StringIndexableObject, to: StringIndexableObject, include: "from" | "to" | "both" = "both") {
+export function diff(
+  from: StringIndexableObject,
+  to: StringIndexableObject,
+  include: "from" | "to" | "both" = "both"
+) {
   const values1 = flatten(from)
   const values2 = flatten(to)
 
@@ -24,8 +28,8 @@ export function diff(from: StringIndexableObject, to: StringIndexableObject, inc
   }
 
   const changes = union(Object.keys(values1), Object.keys(values2))
-    .filter((p) => values1[p] !== values2[p])
-    .map((p) => valueMapping[include](p))
+    .filter(p => values1[p] !== values2[p])
+    .map(p => valueMapping[include](p))
 
   return inflate(Object.fromEntries(changes))
 }

@@ -8,13 +8,13 @@ exports.inflateObject = exports.flattenObject = exports.inflate = exports.flatte
  * @returns List of paths with values in the given object
  */
 function arrayize(obj) {
-    const concat = (...parts) => parts.filter((x) => x).join(".");
+    const concat = (...parts) => parts.filter(x => x).join(".");
     if (obj !== null && typeof obj === "object" && !(obj instanceof Date)) {
         return Object.entries(obj).flatMap(([key, value]) => {
             if (value === null) {
                 return [[key, value]];
             }
-            return arrayize(value).map((e) => [concat(key, e[0]), e[1]]);
+            return arrayize(value).map(e => [concat(key, e[0]), e[1]]);
         });
     }
     return [["", obj]];
@@ -41,7 +41,7 @@ function inflate(obj) {
         const splitted = path.split(".");
         const last = splitted.pop();
         let pointer = obj;
-        splitted.forEach((p) => {
+        splitted.forEach(p => {
             if (!pointer[p]) {
                 pointer[p] = {};
             }

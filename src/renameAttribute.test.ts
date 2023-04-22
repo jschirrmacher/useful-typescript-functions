@@ -7,10 +7,10 @@ describe("renameAttribute", () => {
   })
 
   it("should keep other attributes", () => {
-    expect(renameAttribute("a", "b")({ a: 42, c: 815 })).toEqual({ b: 42, c: 815})
+    expect(renameAttribute("a", "b")({ a: 42, c: 815 })).toEqual({ b: 42, c: 815 })
   })
 
   it("should keep non-scalar values", () => {
-    expect(renameAttribute("a", "b")({ a: { c: "deep"} })).toEqual({ b: { c: "deep" } })
+    expect(renameAttribute("a", "b")({ a: { c: "deep" } })).toEqual({ b: { c: "deep" } })
   })
 })

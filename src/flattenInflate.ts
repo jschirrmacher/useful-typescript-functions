@@ -7,14 +7,14 @@ import { Arrayized, BaseType, FlatObject, StringIndexableObject } from "./types.
  * @returns List of paths with values in the given object
  */
 export function arrayize(obj: BaseType | StringIndexableObject): Arrayized[] {
-  const concat = (...parts: string[]) => parts.filter((x) => x).join(".")
+  const concat = (...parts: string[]) => parts.filter(x => x).join(".")
 
   if (obj !== null && typeof obj === "object" && !(obj instanceof Date)) {
     return Object.entries(obj as StringIndexableObject).flatMap(([key, value]) => {
       if (value === null) {
         return [[key, value]]
       }
-      return arrayize(value).map((e) => [concat(key, e[0]), e[1]]) as Arrayized[]
+      return arrayize(value).map(e => [concat(key, e[0]), e[1]]) as Arrayized[]
     })
   }
   return [["", obj]]
@@ -41,7 +41,7 @@ export function inflate(obj: FlatObject) {
     const splitted = path.split(".")
     const last = splitted.pop() as string
     let pointer = obj
-    splitted.forEach((p) => {
+    splitted.forEach(p => {
       if (!pointer[p]) {
         pointer[p] = {}
       }
