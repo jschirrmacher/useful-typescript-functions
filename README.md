@@ -1,12 +1,13 @@
-# Object utilities
+# Missing TypeScript Functions
 
-A useful collection of object related functions.
+A useful collection of functions missing in TypeScript.
 
 - [**diff** two complex objects](#diff)
 - [**flatten** a complex object to a list of attributes with their values](#flatten)
 - [**inflate** a complex object from a list of attributes](#inflate)
 - [**renameAttribute** in a flat object](#renameAttribute)
 - [**mutate** only allowed fields of a flat object](#mutate)
+- [**oneByOne** run asynchronous functions one after each other](#onebyone)
 
 ## What is the difference between a flat and a complex object?
 
@@ -26,11 +27,11 @@ import { diff } from "js-object-utils"
 const result = diff(
   {
     prop: 1,
-    date: new Date("2022-10-15T07:43:00"),
+    date: new Date("2022-10-15T07:43:00")
   },
   {
     prop: 2,
-    date: new Date(),
+    date: new Date()
   }
 )
 ```
@@ -68,9 +69,9 @@ const flatted = flatten({
   shallow: 1,
   deep: {
     deeper: {
-      property: "abc",
-    },
-  },
+      property: "abc"
+    }
+  }
 })
 // ->  { shallow: 1, 'deep.deeper.property': 'abc' }
 ```
@@ -129,3 +130,15 @@ const mutated = mutate(original, ["mutable"], change)
 
 Mutable attributes cannot be mutated to undefined, but it is possible to set them to null.
 This enables usage for updating database entities.
+
+## `oneByOne`
+
+Run asynchronous functions one after each other. Each of the functions get the resolved value of the previous
+function as a parameter. The last result is resolved by oneByOne().
+
+```ts
+const result = await oneByOne([
+  async () => readUsers(),
+  async (users: User[]) => readEntries(users)
+])
+```

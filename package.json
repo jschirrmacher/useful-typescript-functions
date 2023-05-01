@@ -1,10 +1,10 @@
 {
-  "name": "js-object-utils",
+  "name": "useful-typescript-functions",
   "version": "1.4.2",
-  "description": "Finds differences between objects and other tools to handle objects in Typescript",
+  "description": "Adds useful functions written in Typescript",
   "license": "Apache License v2.0",
   "repository": {
-    "url": "https://github.com/jschirrmacher/object-utils.git"
+    "url": "https://github.com/jschirrmacher/useful-typescript-functions.git"
   },
   "keywords": [
     "object",
