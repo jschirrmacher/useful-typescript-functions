@@ -1,0 +1,17 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "mhutchie.git-graph",
+    "visualstudioexptteam.vscodeintellicode",
+    "stringham.move-ts",
+    "christian-kohler.npm-intellisense",
+    "christian-kohler.path-intellisense",
+    "esbenp.prettier-vscode",
+    "rvest.vs-code-prettier-eslint",
+    "ms-vscode.test-adapter-converter",
+    "hbenl.vscode-test-explorer",
+    "jgclark.vscode-todo-highlight",
+    "loiane.ts-extension-pack",
+    "pmneo.tsimporter"
+  ]
+}
