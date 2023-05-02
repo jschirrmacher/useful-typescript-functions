@@ -19,4 +19,5 @@ __exportStar(require("./flattenInflate.js"), exports);
 __exportStar(require("./diff.js"), exports);
 __exportStar(require("./renameAttribute.js"), exports);
 __exportStar(require("./mutate.js"), exports);
+__exportStar(require("./onebyone"), exports);
 //# sourceMappingURL=index.js.map
