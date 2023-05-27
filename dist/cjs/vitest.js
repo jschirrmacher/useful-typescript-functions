@@ -14,12 +14,5 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./types.js"), exports);
-__exportStar(require("./flattenInflate.js"), exports);
-__exportStar(require("./diff.js"), exports);
-__exportStar(require("./renameAttribute.js"), exports);
-__exportStar(require("./mutate.js"), exports);
-__exportStar(require("./onebyone.js"), exports);
-__exportStar(require("./Logger.js"), exports);
-require("./vitest.js");
-//# sourceMappingURL=index.js.map
+__exportStar(require("vitest"), exports);
+//# sourceMappingURL=vitest.js.map

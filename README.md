@@ -22,7 +22,7 @@ It returns an object containing only the differing properties, even in deeper ne
 It can be configured to include the values from either object or even both.
 
 ```ts
-import { diff } from "js-object-utils"
+import { diff } from "useful-typescript-functions"
 
 const result = diff(
   {
@@ -63,7 +63,7 @@ See some more examples in the [tests](./src/diff.test.ts), and have a [look at t
 This function flattens an deeply nested object to one level. The 'paths' of the original nesting level are conserved as new property names like in the following example:
 
 ```ts
-import { flatten } from "js-object-utils"
+import { flatten } from "useful-typescript-functions"
 
 const flatted = flatten({
   shallow: 1,
@@ -81,7 +81,7 @@ const flatted = flatten({
 This function is the opposite of `flatten()`. It takes an object in the form of the result of `flatten()` and creates a new object, containing all necessary nesting levels:
 
 ```ts
-import { inflate } from "js-object-utils"
+import { inflate } from "useful-typescript-functions"
 
 const inflated = inflate({ shallow: 1, "deep.deeper.property": "abc" })
 // -> { shallow: 1, deep: { deeper: { property: 'abc' }}}
@@ -92,7 +92,7 @@ const inflated = inflate({ shallow: 1, "deep.deeper.property": "abc" })
 Rename an attribute in an object. This higher level function returns a mapper which can be used in an `Array.map()` call:
 
 ```ts
-import { renameAttribute } from "js-object-utils"
+import { renameAttribute } from "useful-typescript-functions"
 
 const users = [{ name: "john" }, { name: "arnold" }]
 const mappedUsers = users.map(renameAttribute("name", "firstName"))
@@ -105,7 +105,7 @@ Returns an object containing allowed changes to an original object.
 It ignores both, attributes not contained in the original object, and attributes not allowed to be changed.
 
 ```ts
-import { getMutation } from "js-object-utils"
+import { getMutation } from "useful-typescript-functions"
 
 const original = { mutable: 1, immutable: 2 }
 const change = { mutable: 3, immutable: 4, other: 5 }
@@ -119,7 +119,7 @@ const mutation = getMutation(original, ["mutable"], change)
 Changes an object regarding only some attributes from another object:
 
 ```ts
-import { mutate } from "js-object-utils"
+import { mutate } from "useful-typescript-functions"
 
 const original = { mutable: 1, immutable: 2 }
 const change = { mutable: 3, immutable: 4, other: 5 }
@@ -141,4 +141,77 @@ const result = await oneByOne([
   async () => readUsers(),
   async (users: User[]) => readEntries(users)
 ])
+```
+
+## `Logger`
+
+A testable [JSONL](https://jsonlines.org/) (Newline separated JSON) logger which allows to intercept log messages, and test for expected ones in a test, or even check for unexpected ones.
+
+### Usage in a program:
+
+```ts
+import { Logger } from "useful-typescript-functions"
+
+const logger = Logger()
+
+logger.debug("test")
+logger.info({ message: "structured log data", source: "this program" })
+
+logger.setGlobal({ info: "global information" })
+logger.error("an error occured")
+```
+
+results in
+
+```JSON
+{"level":"debug","message":"test"}
+{"level":"info","message":"structured log data","source":"this program"}
+{"level":"error","message":"an error occured","info":"global information"}
+```
+
+### Usage in a test:
+
+```ts
+import { beforeEach, describe, expect, it } from "vitest"
+import { Logger } from "useful-typescript-functions"
+
+const logger = Logger()
+
+describe("my test", () => {
+  beforeEach(() => {  // use this in `beforeEach` to reset all log entries from previous test runs
+    logger.runInTest(expect)  // required to make `toLogAsExpected()` matcher available
+  })
+
+  it("should not send any unexpected log messages but the expected one", () => {
+    logger.expect({ level: "warn", message: "expected message" })
+    logger.expect({ level: "debug", message: "another expected message" })
+
+    logger.warn("expected message")
+    logger.debug("unexpected message")
+
+    expect(logger).toLogAsExpected()
+  })
+})
+```
+
+Will result in:
+
+```diff
+- Expected  - 8
++ Received  + 0
+
+  {
+    expected: [
++     {
++       level: 'debug',
++       message: 'another expected message',
++     },
+    ],
+    unexpected: [
++     {
++       level: 'debug',
++       message: 'unexpected message',
++     },
+    ],
+  }
 ```
