@@ -8,8 +8,8 @@ type EntryStore = {
     expected: LogEntry[];
     unexpected: LogEntry[];
 };
-interface ExpectStatic {
-    extend(param: object): void;
+interface ExtendableExpect {
+    extend(params: object): void;
 }
 export declare function Logger(): {
     entries: EntryStore;
@@ -18,7 +18,7 @@ export declare function Logger(): {
     warn: (data: string | object) => void;
     error: (data: string | object) => void;
     setGlobal(data: object): void;
-    runInTest(expect: ExpectStatic): void;
+    runInTest(expect: ExtendableExpect): void;
     expect(info: LogEntry): void;
 };
 export {};

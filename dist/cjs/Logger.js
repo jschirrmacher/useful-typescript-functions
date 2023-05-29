@@ -7,12 +7,20 @@ function Logger() {
         globalData: {},
     };
     const entries = { expected: [], unexpected: [] };
+    function stringify(entries) {
+        const format = (prefix) => (entry) => `- ${prefix}: ${entry.level?.toUpperCase()} "${entry.message}"`;
+        const result = [
+            ...entries.expected.map(format("unfulfilled")),
+            ...entries.unexpected.map(format("unexpected")),
+        ];
+        return result.join("\n");
+    }
     function toLogAsExpected(received) {
         const expected = { expected: [], unexpected: [] };
         const pass = this.equals(received.entries, expected);
         return {
             pass,
-            message: () => `Unexpected log result`,
+            message: () => `Log result\n${stringify(received.entries)}`,
             actual: received.entries,
             expected,
         };

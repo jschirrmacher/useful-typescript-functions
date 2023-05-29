@@ -11,8 +11,8 @@ type Logger = ReturnType<typeof Logger>
 interface MatcherState {
   equals(a: unknown, b: unknown, customTesters?: [], strictCheck?: boolean): boolean
 }
-interface ExpectStatic {
-  extend(param: object): void
+interface ExtendableExpect {
+  extend(params: object): void
 }
 
 export function Logger() {
@@ -23,12 +23,22 @@ export function Logger() {
 
   const entries: EntryStore = { expected: [], unexpected: [] }
 
+  function stringify(entries: EntryStore) {
+    const format = (prefix: string) => (entry: LogEntry) =>
+      `- ${prefix}: ${entry.level?.toUpperCase()} "${entry.message}"`
+    const result = [
+      ...entries.expected.map(format("unfulfilled")),
+      ...entries.unexpected.map(format("unexpected")),
+    ]
+    return result.join("\n")
+  }
+
   function toLogAsExpected(this: MatcherState, received: Logger) {
     const expected = { expected: [], unexpected: [] }
     const pass = this.equals(received.entries, expected)
     return {
       pass,
-      message: () => `Unexpected log result`,
+      message: () => `Log result\n${stringify(received.entries)}`,
       actual: received.entries,
       expected,
     }
@@ -70,7 +80,7 @@ export function Logger() {
       options.globalData = data
     },
 
-    runInTest(expect: ExpectStatic) {
+    runInTest(expect: ExtendableExpect) {
       expect.extend({ toLogAsExpected })
       options.silent = true
       entries.expected.length = 0
