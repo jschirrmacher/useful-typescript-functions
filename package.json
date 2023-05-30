@@ -12,11 +12,25 @@
     "helper",
     "tools"
   ],
-  "types": "./dist/types/index.d.ts",
   "exports": {
-    "require": "./dist/cjs/index.js",
-    "import": "./dist/esm/index.js",
-    "default": "./dist/esm/index.js"
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/esm/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./vitest": {
+      "require": "./dist/cjs/vitest.js",
+      "import": "./dist/esm/vitest.js",
+      "default": "./dist/esm/vitest.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./expect": {
+      "require": "./dist/cjs/expect.js",
+      "import": "./dist/esm/expect.js",
+      "default": "./dist/esm/expect.js",
+      "types": "./dist/types/index.d.ts"
+    }
   },
   "scripts": {
     "test": "npm run test:lint && npm run test:unit",

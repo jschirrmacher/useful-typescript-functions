@@ -21,5 +21,4 @@ __exportStar(require("./renameAttribute.js"), exports);
 __exportStar(require("./mutate.js"), exports);
 __exportStar(require("./onebyone.js"), exports);
 __exportStar(require("./Logger.js"), exports);
-require("./vitest.js");
 //# sourceMappingURL=index.js.map

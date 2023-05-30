@@ -1,5 +1,6 @@
 import { beforeEach, describe, it, expect } from "vitest"
 import { Logger } from "./Logger"
+import "./vitest"
 
 const logger = Logger()
 
