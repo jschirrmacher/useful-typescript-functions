@@ -12,6 +12,7 @@
     "helper",
     "tools"
   ],
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
       "require": "./dist/cjs/index.js",
