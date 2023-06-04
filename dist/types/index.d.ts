@@ -5,3 +5,4 @@ export * from "./renameAttribute.js";
 export * from "./mutate.js";
 export * from "./onebyone.js";
 export * from "./Logger.js";
+export * from "./ObjectComparison.js";

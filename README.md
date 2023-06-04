@@ -27,11 +27,11 @@ import { diff } from "useful-typescript-functions"
 const result = diff(
   {
     prop: 1,
-    date: new Date("2022-10-15T07:43:00")
+    date: new Date("2022-10-15T07:43:00"),
   },
   {
     prop: 2,
-    date: new Date()
+    date: new Date(),
   }
 )
 ```
@@ -69,9 +69,9 @@ const flatted = flatten({
   shallow: 1,
   deep: {
     deeper: {
-      property: "abc"
-    }
-  }
+      property: "abc",
+    },
+  },
 })
 // ->  { shallow: 1, 'deep.deeper.property': 'abc' }
 ```
@@ -85,6 +85,31 @@ import { inflate } from "useful-typescript-functions"
 
 const inflated = inflate({ shallow: 1, "deep.deeper.property": "abc" })
 // -> { shallow: 1, deep: { deeper: { property: 'abc' }}}
+```
+
+## `objectContains()`
+
+Deep compare two object a and b in a way that all properties with values from b must be also in a. Other properties/values of a are ignored.
+
+```ts
+import { objectContains } from "useful-typescript-functions"
+
+console.log(objectContains({ a: 1, b: "c" }, { b: "d" }))
+// -> false
+console.log(objectContains({ a: 1, b: "c" }, { a: 1 }))
+// -> true
+```
+
+## `objectContaining()`
+
+Returns an asymmetricMatcher object which helps comparing the given object with other objects.
+
+```ts
+import { objectContaining } from "useful-typescript-functions"
+
+const matcher = objectContaining({ b: "c" })
+console.log(matcher({ a: 1, b: "c" }))
+// -> true
 ```
 
 ## `renameAttribute()`
@@ -139,7 +164,7 @@ function as a parameter. The last result is resolved by oneByOne().
 ```ts
 const result = await oneByOne([
   async () => readUsers(),
-  async (users: User[]) => readEntries(users)
+  async (users: User[]) => readEntries(users),
 ])
 ```
 
@@ -178,8 +203,9 @@ import { Logger } from "useful-typescript-functions"
 const logger = Logger()
 
 describe("my test", () => {
-  beforeEach(() => {  // use this in `beforeEach` to reset all log entries from previous test runs
-    logger.runInTest(expect)  // required to make `toLogAsExpected()` matcher available
+  beforeEach(() => {
+    // use this in `beforeEach` to reset all log entries from previous test runs
+    logger.runInTest(expect) // required to make `toLogAsExpected()` matcher available
   })
 
   it("should not send any unexpected log messages but the expected one", () => {
