@@ -5,6 +5,8 @@ A useful collection of functions missing in TypeScript.
 - [**diff** two complex objects](#diff)
 - [**flatten** a complex object to a list of attributes with their values](#flatten)
 - [**inflate** a complex object from a list of attributes](#inflate)
+- [**objectContains** partial comparision of objects](#objectcontains)
+- [**objcetContaining** get a function to partial compare objects with](#objectcontaining)
 - [**renameAttribute** in a flat object](#renameAttribute)
 - [**mutate** only allowed fields of a flat object](#mutate)
 - [**oneByOne** run asynchronous functions one after each other](#onebyone)
