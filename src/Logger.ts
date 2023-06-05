@@ -8,6 +8,15 @@ type LogEntry = {
 
 type EntryStore = { expected: LogEntry[]; unexpected: LogEntry[] }
 type Logger = ReturnType<typeof Logger>
+export interface LogStruct {
+  level: LogLevel
+  message: string
+  [key: string]: unknown
+}
+export type Transport = (data: LogStruct) => void
+const consoleTransport = ((data: LogStruct) =>
+  console[data.level](JSON.stringify(data))) as Transport
+
 interface MatcherState {
   equals(a: unknown, b: unknown, customTesters?: [], strictCheck?: boolean): boolean
 }
@@ -19,6 +28,7 @@ export function Logger() {
   const options = {
     silent: false,
     globalData: {},
+    transport: consoleTransport,
   }
 
   const entries: EntryStore = { expected: [], unexpected: [] }
@@ -58,14 +68,14 @@ export function Logger() {
   function log(level: LogLevel, data: string | object) {
     const message = typeof data === "string" ? data : (data as { message: string }).message
     const info = typeof data === "string" ? {} : data
-    const entry = { level, message, ...info, ...options.globalData } as LogEntry
+    const entry = { level, ...options.globalData, ...info, message } as LogStruct
     const index = entries.expected.findIndex(compareWith(entry))
     if (index >= 0) {
       entries.expected = entries.expected.filter((_, i) => i !== index)
     } else {
       entries.unexpected.push(entry)
     }
-    options.silent || console[level](JSON.stringify(entry))
+    options.silent || options.transport(entry)
   }
 
   return {
@@ -75,6 +85,10 @@ export function Logger() {
     info: (data: string | object) => log("info", data),
     warn: (data: string | object) => log("warn", data),
     error: (data: string | object) => log("error", data),
+
+    setTransport(transport: Transport) {
+      options.transport = transport
+    },
 
     setGlobal(data: object) {
       options.globalData = data

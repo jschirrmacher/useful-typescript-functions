@@ -6,4 +6,5 @@ export * from "./mutate.js";
 export * from "./onebyone.js";
 export * from "./Logger.js";
 export * from "./ObjectComparison.js";
+export * from "./CSVLogger";
 //# sourceMappingURL=index.js.map

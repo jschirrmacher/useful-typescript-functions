@@ -8,6 +8,8 @@ A useful collection of functions missing in TypeScript.
 - [**renameAttribute** in a flat object](#renameAttribute)
 - [**mutate** only allowed fields of a flat object](#mutate)
 - [**oneByOne** run asynchronous functions one after each other](#onebyone)
+- [**Logger** a structured log file generator which can easily be tested](#logger)
+- [**CSVLogger** can be used to log to a CSV file](#csvlogger)
 
 ## What is the difference between a flat and a complex object?
 
@@ -241,3 +243,73 @@ Will result in:
     ],
   }
 ```
+
+## `CSVLogger`
+
+The CSVLogger allows to log a fixed data structure to be logged into a file.
+You can either specify the list of properties when instantiating the CSVLogger, or it will take the properties of the first call's parameter as the relevant fields to include in the log.
+
+The CSVLogger will return an object which contains three functions to work on the specified file:
+
+### `append()`
+
+Appends a CSV line to the log.
+
+```ts
+import { CSVLogger } from "useful-typescript-functions"
+
+const log = CSVLogger("test.csv", ["level", "message", "data"])
+log.append({ level: "info", message: "text", data: "more info" })
+```
+
+will write the following lines into `test.csv`:
+
+```csv
+level,message,data
+info,text,more info
+```
+
+Successive calls to `append()` will add data lines to the file, but not additional header lines. Values containing special meaning in csv will be escaped.
+
+### `read()`
+
+Reads csv data from an existing file.
+
+The above csv file can be read in as follows:
+
+```ts
+import { CSVLogger } from "useful-typescript-functions"
+
+const log = CSVLogger("test.csv")
+console.log(log.read())
+
+// [ { level: 'info', message: 'text', data: 'more info' } ]
+```
+
+### `getTransport()`
+
+Returns a function to be used as a Transport for [Logger](#logger).
+
+```ts
+import { CSVLogger, Logger } from "useful-typescript-functions"
+
+const logger = Logger()
+const file = CSVLogger("test.csv")
+logger.setTransport(file.getTransport())
+logger.info({ message: "text", data: "more info" })
+logger.debug("another log output")
+```
+
+will write the following lines into `test.csv`:
+
+```csv
+level,message,data
+info,text,more info
+debug,another log output,
+```
+
+As you see, the `level` field is automatically added due to the fact that you logged with `logger.info`. Like that, if you log only a string message instead of an object, the level and the message will be written to the file.
+
+While this will work as expected, it is a good idea to specify the fields to be logged explicitly in the `CSVLogger()` call. If so, even non existing properties in the logged objects will be contained as empty CSV fields.
+
+If you do not specify the fields explicitly, only the properties contained in the first logged object will be contained in the log of successive log outputs, while any other will be ignored.

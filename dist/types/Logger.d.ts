@@ -8,6 +8,12 @@ type EntryStore = {
     expected: LogEntry[];
     unexpected: LogEntry[];
 };
+export interface LogStruct {
+    level: LogLevel;
+    message: string;
+    [key: string]: unknown;
+}
+export type Transport = (data: LogStruct) => void;
 interface ExtendableExpect {
     extend(params: object): void;
 }
@@ -17,6 +23,7 @@ export declare function Logger(): {
     info: (data: string | object) => void;
     warn: (data: string | object) => void;
     error: (data: string | object) => void;
+    setTransport(transport: Transport): void;
     setGlobal(data: object): void;
     runInTest(expect: ExtendableExpect): void;
     expect(info: LogEntry): void;

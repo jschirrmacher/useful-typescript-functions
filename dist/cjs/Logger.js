@@ -1,10 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = void 0;
+const consoleTransport = ((data) => console[data.level](JSON.stringify(data)));
 function Logger() {
     const options = {
         silent: false,
         globalData: {},
+        transport: consoleTransport,
     };
     const entries = { expected: [], unexpected: [] };
     function stringify(entries) {
@@ -36,7 +38,7 @@ function Logger() {
     function log(level, data) {
         const message = typeof data === "string" ? data : data.message;
         const info = typeof data === "string" ? {} : data;
-        const entry = { level, message, ...info, ...options.globalData };
+        const entry = { level, ...options.globalData, ...info, message };
         const index = entries.expected.findIndex(compareWith(entry));
         if (index >= 0) {
             entries.expected = entries.expected.filter((_, i) => i !== index);
@@ -44,7 +46,7 @@ function Logger() {
         else {
             entries.unexpected.push(entry);
         }
-        options.silent || console[level](JSON.stringify(entry));
+        options.silent || options.transport(entry);
     }
     return {
         entries,
@@ -52,6 +54,9 @@ function Logger() {
         info: (data) => log("info", data),
         warn: (data) => log("warn", data),
         error: (data) => log("error", data),
+        setTransport(transport) {
+            options.transport = transport;
+        },
         setGlobal(data) {
             options.globalData = data;
         },
