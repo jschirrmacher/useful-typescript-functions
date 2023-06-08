@@ -69,7 +69,7 @@ export function CSVLogger(fileName: string, fields = [] as string[]) {
       if (!statSync(fileName).size) {
         writeLine(fields)
       }
-      writeLine(fields.map(field => "" + (data[field] || "")))
+      writeLine(fields.map(field => (data[field] === 0 ? "0" : "" + (data[field] || ""))))
     },
 
     getTransport() {
@@ -86,4 +86,4 @@ export function CSVLogger(fileName: string, fields = [] as string[]) {
   }
 }
 
-export default  CSVLogger
+export default CSVLogger

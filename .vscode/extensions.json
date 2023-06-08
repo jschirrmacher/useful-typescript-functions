@@ -12,6 +12,7 @@
     "hbenl.vscode-test-explorer",
     "jgclark.vscode-todo-highlight",
     "loiane.ts-extension-pack",
-    "pmneo.tsimporter"
+    "pmneo.tsimporter",
+    "zixuanchen.vitest-explorer"
   ]
 }

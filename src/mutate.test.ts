@@ -11,7 +11,7 @@ const attributes = ["mutable"] as const
 
 describe("getMutation", () => {
   it("return a list of changes", () => {
-    const result = getMutation(original, attributes, { mutable: "b", immutable: 2, other: 42 })
+    const result = getMutation(original, attributes, { mutable: "b", immutable: 2, other: 42 } as ObjectUnderTest)
     expect(result).toEqual({ mutable: "b" })
   })
 })
@@ -23,12 +23,12 @@ describe("mutate", () => {
   })
 
   it("should ignore unknown attributes", () => {
-    const result = mutate(original, attributes, { other: 42 })
+    const result = mutate(original, attributes, { other: 42 } as unknown as ObjectUnderTest)
     expect(result).toStrictEqual({ mutable: "a", immutable: 1 })
   })
 
   it("should be possible to empty a mutable field", () => {
-    const result = mutate(original, attributes, { mutable: null })
+    const result = mutate(original, attributes, { mutable: null } as unknown as ObjectUnderTest)
     expect(result).toStrictEqual({ mutable: null, immutable: 1 })
   })
 })

@@ -54,7 +54,7 @@ export function CSVLogger(fileName, fields = []) {
             if (!statSync(fileName).size) {
                 writeLine(fields);
             }
-            writeLine(fields.map(field => "" + (data[field] || "")));
+            writeLine(fields.map(field => (data[field] === 0 ? "0" : "" + (data[field] || ""))));
         },
         getTransport() {
             return (data) => this.append(data);

@@ -63,6 +63,14 @@ describe("CSVLogger", () => {
       file.append({ test: "abc\nxyz" })
       expect(fs.appendFileSync.mock.calls[1]).toEqual(["test.csv", '"abc\\nxyz"\n'])
     })
+
+    it("should log numerical zeros as such", () => {
+      const fs = mockFileSystem()
+      const file = CSVLogger("test.csv")
+      file.injectFileSystem(fs)
+      file.append({ test: 0 })
+      expect(fs.appendFileSync.mock.calls[1]).toEqual(["test.csv", "0\n"])
+    })
   })
 
   describe("read", () => {
