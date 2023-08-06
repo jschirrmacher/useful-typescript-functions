@@ -53,12 +53,12 @@
     "email": "joachim.schirrmacher@gmail.com"
   },
   "devDependencies": {
-    "@types/node": "20.4.7",
+    "@types/node": "20.4.8",
     "@typescript-eslint/eslint-plugin": "^6.2.1",
     "@typescript-eslint/parser": "^6.2.1",
     "@vitest/coverage-c8": "^0.33.0",
     "eslint": "^8.46.0",
-    "eslint-config-prettier": "^8.10.0",
+    "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "npm-run-all": "^4.1.5",
     "prettier": "3.0.1",
