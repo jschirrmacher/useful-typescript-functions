@@ -22,5 +22,5 @@ __exportStar(require("./mutate.js"), exports);
 __exportStar(require("./onebyone.js"), exports);
 __exportStar(require("./Logger.js"), exports);
 __exportStar(require("./ObjectComparison.js"), exports);
-__exportStar(require("./CSVLogger"), exports);
+__exportStar(require("./CSVLogger.js"), exports);
 //# sourceMappingURL=index.js.map
