@@ -23,9 +23,9 @@ export declare function Logger(): {
     info: (data: string | object) => void;
     warn: (data: string | object) => void;
     error: (data: string | object) => void;
-    setTransport(transport: Transport): void;
-    setGlobal(data: object): void;
-    runInTest(expect: ExtendableExpect): void;
-    expect(info: LogEntry): void;
+    setTransport(transport: Transport): any;
+    setGlobal(data: object): any;
+    runInTest(expect: ExtendableExpect): any;
+    expect(info: LogEntry): any;
 };
 export {};

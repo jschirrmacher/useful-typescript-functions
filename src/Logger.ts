@@ -88,10 +88,12 @@ export function Logger() {
 
     setTransport(transport: Transport) {
       options.transport = transport
+      return this
     },
 
     setGlobal(data: object) {
       options.globalData = data
+      return this
     },
 
     runInTest(expect: ExtendableExpect) {
@@ -99,10 +101,12 @@ export function Logger() {
       options.silent = true
       entries.expected.length = 0
       entries.unexpected.length = 0
+      return this
     },
 
     expect(info: LogEntry) {
       entries.expected.push(info)
+      return this
     },
   }
 }

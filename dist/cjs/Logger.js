@@ -56,18 +56,22 @@ function Logger() {
         error: (data) => log("error", data),
         setTransport(transport) {
             options.transport = transport;
+            return this;
         },
         setGlobal(data) {
             options.globalData = data;
+            return this;
         },
         runInTest(expect) {
             expect.extend({ toLogAsExpected });
             options.silent = true;
             entries.expected.length = 0;
             entries.unexpected.length = 0;
+            return this;
         },
         expect(info) {
             entries.expected.push(info);
+            return this;
         },
     };
 }
