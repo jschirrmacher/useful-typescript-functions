@@ -17,7 +17,7 @@ export declare class RestError extends Error {
     status: number;
     constructor(status: number, message: string);
 }
-export declare function setupServer(options?: ServerConfiguration): Promise<ServerConfiguration>;
+export declare function setupServer(options?: ServerConfiguration): Promise<Required<ServerConfiguration>>;
 export declare function stopServer(config: ServerConfiguration): void;
 export declare const middlewares: {
     staticFiles(distPath: string): import("express-serve-static-core").Router;

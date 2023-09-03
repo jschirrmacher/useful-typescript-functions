@@ -56,7 +56,7 @@ export async function setupServer(options?: ServerConfiguration) {
   config.app.use((req, res, next) => next(new RestError(404, "path not found")))
   config.app.use(errorHandler)
 
-  return new Promise<ServerConfiguration>(resolve => {
+  return new Promise<Required<ServerConfiguration>>(resolve => {
     config.server?.listen(config.port, () => {
       config.logger.info(`Running on http://localhost:${config.port}`)
       process.on("beforeExit", () => stopServer(config))
