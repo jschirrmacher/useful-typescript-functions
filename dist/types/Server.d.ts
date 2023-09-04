@@ -1,10 +1,12 @@
 /// <reference types="node" />
 /// <reference types="node" />
 /// <reference types="node" />
-import { Application, RequestHandler } from "express";
-import { LogLevel } from "./Logger.js";
 import { Server } from "http";
+import { Application, NextFunction, Request, Response, Router } from "express";
+import { LogLevel } from "./Logger.js";
 type Logger = Pick<typeof console, "debug" | "info" | "error">;
+export declare const restMethod: readonly ["get", "post", "put", "patch", "delete"];
+type RequestHandler = (req: Request, res: Response, next: NextFunction) => unknown;
 export interface ServerConfiguration {
     app?: Application;
     server?: Server;
@@ -22,5 +24,24 @@ export declare function stopServer(config: ServerConfiguration): void;
 export declare const middlewares: {
     staticFiles(distPath: string): import("express-serve-static-core").Router;
     requestLogger(logger: Pick<typeof console, "debug">, logLevel: LogLevel): import("express-serve-static-core").Router;
+};
+export declare function routerBuilder(): {
+    build: () => Router;
+} & {
+    get: (path: string, handler: RequestHandler) => {
+        build: () => Router;
+    } & any;
+    post: (path: string, handler: RequestHandler) => {
+        build: () => Router;
+    } & any;
+    put: (path: string, handler: RequestHandler) => {
+        build: () => Router;
+    } & any;
+    patch: (path: string, handler: RequestHandler) => {
+        build: () => Router;
+    } & any;
+    delete: (path: string, handler: RequestHandler) => {
+        build: () => Router;
+    } & any;
 };
 export {};

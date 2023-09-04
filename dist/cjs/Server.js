@@ -23,10 +23,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.middlewares = exports.stopServer = exports.setupServer = exports.RestError = void 0;
+exports.routerBuilder = exports.middlewares = exports.stopServer = exports.setupServer = exports.RestError = exports.restMethod = void 0;
 const http_1 = require("http");
 const express_1 = __importStar(require("express"));
 const fs_1 = require("fs");
+exports.restMethod = ["get", "post", "put", "patch", "delete"];
 class RestError extends Error {
     constructor(status, message) {
         super(message);
@@ -89,4 +90,22 @@ exports.middlewares = {
         return loggingMiddleware;
     },
 };
+function routerBuilder() {
+    const router = (0, express_1.Router)();
+    const routeDefinition = (method) => (path, handler) => {
+        router[method](path, async (req, res, next) => {
+            try {
+                const result = await handler(req, res, next);
+                res.json(result);
+            }
+            catch (error) {
+                res.status(error.status || 500).json({ error });
+            }
+        });
+        return builder;
+    };
+    const builder = Object.assign({ build: () => router }, ...exports.restMethod.map(method => ({ [method]: routeDefinition(method) })));
+    return builder;
+}
+exports.routerBuilder = routerBuilder;
 //# sourceMappingURL=Server.js.map

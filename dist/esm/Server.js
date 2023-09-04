@@ -1,6 +1,7 @@
 import { createServer } from "http";
-import express, { Router, } from "express";
+import express, { Router } from "express";
 import { existsSync, readFileSync } from "fs";
+export const restMethod = ["get", "post", "put", "patch", "delete"];
 export class RestError extends Error {
     constructor(status, message) {
         super(message);
@@ -60,4 +61,21 @@ export const middlewares = {
         return loggingMiddleware;
     },
 };
+export function routerBuilder() {
+    const router = Router();
+    const routeDefinition = (method) => (path, handler) => {
+        router[method](path, async (req, res, next) => {
+            try {
+                const result = await handler(req, res, next);
+                res.json(result);
+            }
+            catch (error) {
+                res.status(error.status || 500).json({ error });
+            }
+        });
+        return builder;
+    };
+    const builder = Object.assign({ build: () => router }, ...restMethod.map(method => ({ [method]: routeDefinition(method) })));
+    return builder;
+}
 //# sourceMappingURL=Server.js.map

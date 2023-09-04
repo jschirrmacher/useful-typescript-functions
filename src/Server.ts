@@ -1,17 +1,12 @@
-import { createServer } from "http"
-import express, {
-  Application,
-  NextFunction,
-  Request,
-  RequestHandler,
-  Response,
-  Router,
-} from "express"
+import { createServer, Server } from "http"
+import express, { Application, NextFunction, Request, Response, Router } from "express"
 import { existsSync, readFileSync } from "fs"
 import { LogLevel } from "./Logger.js"
-import { Server } from "http"
 
 type Logger = Pick<typeof console, "debug" | "info" | "error">
+export const restMethod = ["get", "post", "put", "patch", "delete"] as const
+type RestMethod = (typeof restMethod)[number]
+type RequestHandler = (req: Request, res: Response, next: NextFunction) => unknown
 
 export interface ServerConfiguration {
   app?: Application
@@ -92,4 +87,25 @@ export const middlewares = {
     }
     return loggingMiddleware
   },
+}
+
+export function routerBuilder() {
+  const router = Router()
+  const routeDefinition = (method: RestMethod) => (path: string, handler: RequestHandler) => {
+    router[method](path, async (req, res, next) => {
+      try {
+        const result = await handler(req, res, next)
+        res.json(result)
+      } catch (error) {
+        res.status((error as RestError).status || 500).json({ error })
+      }
+    })
+    return builder
+  }
+  const builder = Object.assign(
+    { build: () => router },
+    ...restMethod.map(method => ({ [method]: routeDefinition(method) })),
+  ) as { build: () => Router } & { [m in RestMethod]: ReturnType<typeof routeDefinition> }
+
+  return builder
 }

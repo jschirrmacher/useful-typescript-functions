@@ -1,9 +1,8 @@
 import express, { NextFunction, Request, Response, Router } from "express"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
-import "../vitest"
+import "./vitest"
 import request from "supertest"
-import { RestError, ServerConfiguration, middlewares, setupServer, stopServer } from "./Server.js"
-import supertest from "supertest"
+import { RestError, ServerConfiguration, middlewares, restMethod, routerBuilder, setupServer, stopServer } from "./Server.js"
 import { Logger } from "./Logger.js"
 
 const logger = Logger()
@@ -91,7 +90,7 @@ describe("Server", () => {
     it("should report a 404 error for unknown routes", async () => {
       logger.expect({ level: "info", message: "Running on http://localhost:8080" })
       config = await setupServer({ logger })
-      supertest(config.app).get("/non-existing-file").expect(404)
+      request(config.app).get("/non-existing-file").expect(404)
     })
 
     it("should return the error code", async () => {
@@ -99,7 +98,7 @@ describe("Server", () => {
         .expect({ level: "info", message: "Running on http://localhost:8080" })
         .expect({ level: "error", message: "not allowed" })
       config = await setupServer({ logger, middlewares: [notAllowed] })
-      await supertest(config.app).get("/abc").expect(notAllowedCode)
+      await request(config.app).get("/abc").expect(notAllowedCode)
     })
 
     it("should log errors", async () => {
@@ -107,15 +106,31 @@ describe("Server", () => {
         .expect({ level: "info", message: "Running on http://localhost:8080" })
         .expect({ level: "error", message: "not allowed" })
       config = await setupServer({ logger, middlewares: [notAllowed] })
-      await supertest(config.app).get("/abc")
+      await request(config.app).get("/abc")
     })
 
     it("should send the error message in JSON format", async () => {
       logger.expect({ level: "info", message: "Running on http://localhost:8080" })
       logger.expect({ level: "error", message: "not allowed" })
       config = await setupServer({ logger, middlewares: [notAllowed] })
-      const result = await supertest(config.app).get("/abc")
+      const result = await request(config.app).get("/abc")
       expect(result.body).toEqual({ error: "not allowed" })
+    })
+  })
+
+  describe("routerBuilder()", () => {
+    it("should return a builder with a `build()` method returning a Router", () => {
+      const builder = routerBuilder()
+      expect(builder).toHaveProperty("build")
+      expect(builder.build().name).toEqual("router")
+    })
+
+    restMethod.forEach(method => {
+      it(`should have a method for defining a ${method}() method`, () => {
+        const builder = routerBuilder()
+        expect(builder).toHaveProperty(method)
+        expect(builder[method]).toBeInstanceOf(Function)
+      })
     })
   })
 })
