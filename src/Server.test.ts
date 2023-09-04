@@ -31,10 +31,13 @@ async function simulateFetch(
   return await (data ? prepared.send(data) : prepared)
 }
 
+function expectServerStartLog() {
+  logger.expect({ level: "info", message: "Running on http://localhost:8080" })
+}
+
 describe("Server", () => {
   afterEach(() => {
-    expect(logger.entries.expected).toEqual([])
-    expect(logger.entries.unexpected).toEqual([])
+    expect(logger).toLogAsExpected()
   })
 
   describe("requestLogger middleware", () => {
@@ -84,33 +87,30 @@ describe("Server", () => {
 
     afterEach(() => {
       stopServer(config)
-      expect(logger).toLogAsExpected()
     })
 
     it("should report a 404 error for unknown routes", async () => {
-      logger.expect({ level: "info", message: "Running on http://localhost:8080" })
+      expectServerStartLog()
       config = await setupServer({ logger })
       request(config.app).get("/non-existing-file").expect(404)
     })
 
     it("should return the error code", async () => {
-      logger
-        .expect({ level: "info", message: "Running on http://localhost:8080" })
-        .expect({ level: "error", message: "not allowed" })
+      expectServerStartLog()
+      logger.expect({ level: "error", message: "not allowed" })
       config = await setupServer({ logger, middlewares: [notAllowed] })
       await request(config.app).get("/abc").expect(notAllowedCode)
     })
 
     it("should log errors", async () => {
-      logger
-        .expect({ level: "info", message: "Running on http://localhost:8080" })
-        .expect({ level: "error", message: "not allowed" })
+      expectServerStartLog()
+      logger.expect({ level: "error", message: "not allowed" })
       config = await setupServer({ logger, middlewares: [notAllowed] })
       await request(config.app).get("/abc")
     })
 
     it("should send the error message in JSON format", async () => {
-      logger.expect({ level: "info", message: "Running on http://localhost:8080" })
+      expectServerStartLog()
       logger.expect({ level: "error", message: "not allowed" })
       config = await setupServer({ logger, middlewares: [notAllowed] })
       const result = await request(config.app).get("/abc")
@@ -119,6 +119,17 @@ describe("Server", () => {
   })
 
   describe("routerBuilder()", () => {
+    let config: ServerConfiguration | undefined
+
+    beforeEach(() => {
+      logger.runInTest(expect)
+    })
+
+    afterEach(() => {
+      config && stopServer(config)
+      config = undefined
+    })
+
     it("should return a builder with a `build()` method returning a Router", () => {
       const builder = routerBuilder()
       expect(builder).toHaveProperty("build")
@@ -131,6 +142,15 @@ describe("Server", () => {
         expect(builder).toHaveProperty(method)
         expect(builder[method]).toBeInstanceOf(Function)
       })
+    })
+
+    it("should prepend a base path to all defined routes", async () => {
+      expectServerStartLog()
+      const builder = routerBuilder("/base-path")
+      builder.get("/my-path", () => `Hello world`)
+      config = await setupServer({ logger, middlewares: [builder.build()] })
+      const result = await request(config.app).get("/base-path/my-path").expect(200)
+      expect(result.body).toEqual("Hello world")
     })
   })
 })

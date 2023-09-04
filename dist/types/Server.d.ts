@@ -25,7 +25,7 @@ export declare const middlewares: {
     staticFiles(distPath: string): import("express-serve-static-core").Router;
     requestLogger(logger: Pick<typeof console, "debug">, logLevel: LogLevel): import("express-serve-static-core").Router;
 };
-export declare function routerBuilder(): {
+export declare function routerBuilder(basePath?: string): {
     build: () => Router;
 } & {
     get: (path: string, handler: RequestHandler) => {

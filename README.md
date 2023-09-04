@@ -12,6 +12,7 @@ A useful collection of functions missing in TypeScript.
 - [**oneByOne** run asynchronous functions one after each other](#onebyone)
 - [**Logger** a structured log file generator which can easily be tested](#logger)
 - [**CSVLogger** can be used to log to a CSV file](#csvlogger)
+- [**Server** to simplify creation of express.js servers and routers](#server)
 
 ## What is the difference between a flat and a complex object?
 
@@ -318,7 +319,7 @@ If you do not specify the fields explicitly, only the properties contained in th
 
 ## `Server`
 
-Helps running a http server based on expressjs. It brings a configuration to enable consuming JSON data, handle non-existing routes by returning a 404 error, and a general error handler which catches `RestError`s, logs them, and creating a  response with the corresponding status and a JSON content with more information about the error.
+Helps running a http server based on expressjs. It brings a configuration to enable consuming JSON data, handle non-existing routes by returning a 404 error, and a general error handler which catches `RestError`s, logs them, and creating a response with the corresponding status and a JSON content with more information about the error.
 
 There is a `stopServer` function for controlled shutdown of the server. It is automatically called when the process ends, but is helpful when testing the server.
 
@@ -346,6 +347,19 @@ await setupServer({
 })
 ```
 
+### Setting up routes
+
+There is a `routerBuilder()` function which simplifies creating routes on the server. Using it looks like this:
+
+```ts
+const router = routerBuilder()
+  .get("/greetings", () => `Hello world`)
+  .build()
+```
+
+The router can then be used as a middleware for the server.
+
+The builder can get an optional base path which every route defined on the router will be prepended with.
 ### Provided Middlewares
 
 #### `staticFiles(distPath: string)`
@@ -355,3 +369,4 @@ This function returns an optional middleware to be used for `setupServer()` whic
 #### `requestLogger(logger: Logger, level: LogLevel)`
 
 Use this logger middleware if you want to log requests handled by the server. The `level` parameter defines, if log messages actually occur. A good practice could be to provide `process.env.LOGLEVEL` here. If it is set to `debug`, the requests are acutally logged.
+

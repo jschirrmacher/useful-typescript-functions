@@ -89,10 +89,10 @@ export const middlewares = {
   },
 }
 
-export function routerBuilder() {
+export function routerBuilder(basePath?: string) {
   const router = Router()
   const routeDefinition = (method: RestMethod) => (path: string, handler: RequestHandler) => {
-    router[method](path, async (req, res, next) => {
+    router[method]((basePath || "") + path, async (req, res, next) => {
       try {
         const result = await handler(req, res, next)
         res.json(result)

@@ -90,10 +90,10 @@ exports.middlewares = {
         return loggingMiddleware;
     },
 };
-function routerBuilder() {
+function routerBuilder(basePath) {
     const router = (0, express_1.Router)();
     const routeDefinition = (method) => (path, handler) => {
-        router[method](path, async (req, res, next) => {
+        router[method]((basePath || "") + path, async (req, res, next) => {
             try {
                 const result = await handler(req, res, next);
                 res.json(result);
