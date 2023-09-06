@@ -57,9 +57,10 @@ export function Logger() {
   function compareWith(actual: LogEntry) {
     return function (expected: LogEntry) {
       const { message, ...rest } = expected
-      const regExp = message instanceof RegExp ? message : new RegExp(message as string)
+      const matcher =
+        message instanceof RegExp ? message : { test: (actual: string) => message === actual }
       return (
-        regExp.test(actual.message as string) &&
+        matcher.test(actual.message as string) &&
         Object.entries(rest).every(([key, val]) => val === actual[key])
       )
     }

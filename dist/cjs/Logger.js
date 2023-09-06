@@ -30,8 +30,8 @@ function Logger() {
     function compareWith(actual) {
         return function (expected) {
             const { message, ...rest } = expected;
-            const regExp = message instanceof RegExp ? message : new RegExp(message);
-            return (regExp.test(actual.message) &&
+            const matcher = message instanceof RegExp ? message : { test: (actual) => message === actual };
+            return (matcher.test(actual.message) &&
                 Object.entries(rest).every(([key, val]) => val === actual[key]));
         };
     }

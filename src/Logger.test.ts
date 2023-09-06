@@ -47,4 +47,10 @@ describe("Logger", () => {
     logger.expect({ level: "info", message: "test message", test: "Logger", data: 42 })
     expect(logger).toLogAsExpected()
   })
+
+  it("should work with brackets in the expected message", () => {
+    logger.expect({ level: "info", message: "text with (brackets)"})
+    logger.info("text with (brackets)")
+    expect(logger).toLogAsExpected()
+  })
 })
