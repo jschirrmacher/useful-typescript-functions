@@ -24,4 +24,5 @@ __exportStar(require("./Logger.js"), exports);
 __exportStar(require("./ObjectComparison.js"), exports);
 __exportStar(require("./CSVLogger.js"), exports);
 __exportStar(require("./Server.js"), exports);
+__exportStar(require("./Configuration.js"), exports);
 //# sourceMappingURL=index.js.map

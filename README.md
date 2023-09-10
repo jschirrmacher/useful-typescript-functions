@@ -370,3 +370,21 @@ This function returns an optional middleware to be used for `setupServer()` whic
 
 Use this logger middleware if you want to log requests handled by the server. The `level` parameter defines, if log messages actually occur. A good practice could be to provide `process.env.LOGLEVEL` here. If it is set to `debug`, the requests are acutally logged.
 
+## `Configuration`
+
+A function to read a configuration file containing settings for a backend and a frontend.
+The default configuration file name is `config.yaml` in the working directory (the directory from where the program was started, if not explicitly changed).
+
+Usage example:
+
+```ts
+import { Configuration } from "useful-typescript-functions"
+
+const { frontendConfiguration, backendConfiguration } = Configuration()
+
+sendmail(recipient, backendConfiguration.mailSender, "Test", "A test email")
+```
+
+The `Configuration` function accepts a parameter to specify an alternative path to a file to read. In every case, the configuration file is expected to be a YAML file, containing properties which can be scalar, arrays or records in any depth.
+
+All settings in the configuration file are expected to be frontend related and land in `frontendConfiguration`, only settings in an optional `backend` property are hidden from the `frontendConfiguration`, but land in `backendConfiguration`.

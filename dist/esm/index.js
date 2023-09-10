@@ -8,4 +8,5 @@ export * from "./Logger.js";
 export * from "./ObjectComparison.js";
 export * from "./CSVLogger.js";
 export * from "./Server.js";
+export * from "./Configuration.js";
 //# sourceMappingURL=index.js.map
