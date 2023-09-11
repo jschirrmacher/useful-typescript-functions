@@ -7,6 +7,9 @@ type Logger = Pick<typeof console, "debug" | "info" | "error">
 export const restMethod = ["get", "post", "put", "patch", "delete"] as const
 type RestMethod = (typeof restMethod)[number]
 type RequestHandler = (req: Request, res: Response, next: NextFunction) => unknown
+type RouterBuilder = { build: () => Router } & {
+  [m in RestMethod]: (path: string, handler: RequestHandler) => RouterBuilder
+}
 
 export interface ServerConfiguration {
   app?: Application
@@ -105,7 +108,7 @@ export function routerBuilder(basePath?: string) {
   const builder = Object.assign(
     { build: () => router },
     ...restMethod.map(method => ({ [method]: routeDefinition(method) })),
-  ) as { build: () => Router } & { [m in RestMethod]: ReturnType<typeof routeDefinition> }
+  ) as RouterBuilder
 
   return builder
 }
