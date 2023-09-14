@@ -13,6 +13,7 @@ A useful collection of functions missing in TypeScript.
 - [**Logger** a structured log file generator which can easily be tested](#logger)
 - [**CSVLogger** can be used to log to a CSV file](#csvlogger)
 - [**Server** to simplify creation of express.js servers and routers](#server)
+- [**Files** to help handle files, especially image previews](src/Files)
 
 ## What is the difference between a flat and a complex object?
 
