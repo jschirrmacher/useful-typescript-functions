@@ -3,7 +3,7 @@
 Some functions to ease handling of files, and especially image files.
 
 ```ts
-import { Files } from "./Files"
+import { Files } from "useful-typescript-functions"
 import sharp from "sharp"
 
 const { mkdir, getProjectDir, getPreview } = Files({ sharp })

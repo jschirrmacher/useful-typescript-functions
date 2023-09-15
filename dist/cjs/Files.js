@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FileHelper = exports.getPreviewFolder = void 0;
+exports.Files = exports.getPreviewFolder = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = require("path");
 const allowedSizeOptions = ["width", "height", "fit", "position", "kernel"];
@@ -17,7 +17,7 @@ function getPreviewFolder(options) {
             .replace(/\s+/g, "-"));
 }
 exports.getPreviewFolder = getPreviewFolder;
-function FileHelper({ sharp, fs } = {}) {
+function Files({ sharp, fs } = {}) {
     const { mkdir, readFile, writeFile } = (fs || promises_1.default);
     const helper = {
         async mkdirp(path) {
@@ -50,5 +50,5 @@ function FileHelper({ sharp, fs } = {}) {
     };
     return helper;
 }
-exports.FileHelper = FileHelper;
+exports.Files = Files;
 //# sourceMappingURL=Files.js.map

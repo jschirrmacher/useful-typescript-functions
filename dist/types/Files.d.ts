@@ -14,7 +14,7 @@ type SharpOperations = {
 };
 type SharpLib = (path: string) => SharpOperations;
 export declare function getPreviewFolder(options: SizeOptions): string;
-export declare function FileHelper({ sharp, fs }?: {
+export declare function Files({ sharp, fs }?: {
     sharp?: SharpLib;
     fs?: FileSystem;
 }): {

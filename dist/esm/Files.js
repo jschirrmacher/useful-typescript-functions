@@ -10,7 +10,7 @@ export function getPreviewFolder(options) {
             .join("_")
             .replace(/\s+/g, "-"));
 }
-export function FileHelper({ sharp, fs } = {}) {
+export function Files({ sharp, fs } = {}) {
     const { mkdir, readFile, writeFile } = (fs || origFs);
     const helper = {
         async mkdirp(path) {

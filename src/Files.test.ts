@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { FileHelper, getPreviewFolder } from "./Files"
+import { Files, getPreviewFolder } from "./Files"
 
 const hexToBuffer = (hex: string) =>
   new Uint8Array(hex.match(/.{2}/g)?.map(hexPair => parseInt(hexPair, 16)) || [])
@@ -35,7 +35,7 @@ function sharp() {
 describe("FileHelper", () => {
   describe("mkdirp()", () => {
     const fs = mockFs()
-    const { mkdirp } = FileHelper({ fs })
+    const { mkdirp } = Files({ fs })
 
     it("should call fs.mkdir() with 'recursive=true'", () => {
       mkdirp("test/abc")
@@ -45,7 +45,7 @@ describe("FileHelper", () => {
 
   describe("getProjectDir()", () => {
     const fs = mockFs()
-    const { getProjectDir } = FileHelper({ fs })
+    const { getProjectDir } = Files({ fs })
 
     beforeEach(() => {
       delete process.env.TEST
@@ -68,7 +68,7 @@ describe("FileHelper", () => {
 
   describe("getPreview()", () => {
     const fs = mockFs()
-    const { getPreview } = FileHelper({ fs, sharp })
+    const { getPreview } = Files({ fs, sharp })
 
     fs.readFile.mockImplementation((name: string) => {
       if (name.match(/\/preview_/)) {

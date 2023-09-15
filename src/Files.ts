@@ -37,7 +37,7 @@ export function getPreviewFolder(options: SizeOptions) {
   )
 }
 
-export function FileHelper({ sharp, fs }: { sharp?: SharpLib, fs?: FileSystem } = {}) {
+export function Files({ sharp, fs }: { sharp?: SharpLib, fs?: FileSystem } = {}) {
   const { mkdir, readFile, writeFile } = (fs || origFs)
 
   const helper = {
