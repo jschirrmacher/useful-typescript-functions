@@ -12,7 +12,7 @@ type SharpOperations = {
     resize(options: SizeOptions): SharpOperations;
     toBuffer(): Promise<Buffer>;
 };
-type SharpLib = (path: string) => SharpOperations;
+export type SharpLib = (path: string) => SharpOperations;
 export declare function getPreviewFolder(options: SizeOptions): string;
 export declare function Files({ sharp, fs }?: {
     sharp?: SharpLib;

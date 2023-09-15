@@ -21,7 +21,7 @@ type SharpOperations = {
   resize(options: SizeOptions): SharpOperations
   toBuffer(): Promise<Buffer>
 }
-type SharpLib = (path: string) => SharpOperations
+export type SharpLib = (path: string) => SharpOperations
 
 const allowedSizeOptions = ["width", "height", "fit", "position", "kernel"] as const
 
