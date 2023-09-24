@@ -1,14 +1,15 @@
-import { createServer, Server } from "http"
 import express, { Application, NextFunction, Request, Response, Router } from "express"
+import fileUpload from "express-fileupload"
 import { existsSync, readFileSync } from "fs"
+import { createServer, Server } from "http"
 import { LogLevel } from "./Logger.js"
 
 type Logger = Pick<typeof console, "debug" | "info" | "error">
 export const restMethod = ["get", "post", "put", "patch", "delete"] as const
 type RestMethod = (typeof restMethod)[number]
 type RequestHandler = (req: Request, res: Response, next: NextFunction) => unknown
-type RouterBuilder = { build: () => Router } & {
-  [m in RestMethod]: (path: string, handler: RequestHandler) => RouterBuilder
+type RouterBuilder = { build: () => RequestHandler } & {
+  [m in RestMethod]: (path: string, ...handlers: RequestHandler[]) => RouterBuilder
 }
 
 export interface ServerConfiguration {
@@ -76,7 +77,7 @@ export const middlewares = {
       staticFilesMiddleware.use(express.static(distPath))
       staticFilesMiddleware.use((req, res) => res.send(indexPage))
     }
-    return staticFilesMiddleware
+    return staticFilesMiddleware as RequestHandler
   },
 
   requestLogger(logger: Pick<typeof console, "debug">, logLevel: LogLevel) {
@@ -88,23 +89,41 @@ export const middlewares = {
         next()
       })
     }
-    return loggingMiddleware
+    return loggingMiddleware as RequestHandler
+  },
+
+  fileUpload(maxUploadSize: number) {
+    return fileUpload({
+      safeFileNames: true,
+      preserveExtension: true,
+      limits: { fileSize: maxUploadSize },
+    })
   },
 }
 
 export function routerBuilder(basePath?: string) {
-  const router = Router()
-  const routeDefinition = (method: RestMethod) => (path: string, handler: RequestHandler) => {
-    router[method]((basePath || "") + path, async (req, res, next) => {
+  function tryCatch(handler: RequestHandler) {
+    return async (req: Request, res: Response, next: NextFunction) => {
       try {
         const result = await handler(req, res, next)
-        res.json(result)
+        if (result) {
+          res.json(result)
+        } else {
+          next()
+        }
       } catch (error) {
-        res.status((error as RestError).status || 500).json({ error })
+        next(error)
       }
-    })
-    return builder
+    }
   }
+
+  const router = Router()
+  const routeDefinition =
+    (method: RestMethod) =>
+    (path: string, ...handlers: RequestHandler[]) => {
+      router[method]((basePath || "") + path, ...handlers.map(tryCatch))
+      return builder
+    }
   const builder = Object.assign(
     { build: () => router },
     ...restMethod.map(method => ({ [method]: routeDefinition(method) })),

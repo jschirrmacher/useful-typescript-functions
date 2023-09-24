@@ -1,19 +1,34 @@
-import express, { NextFunction, Request, Response, Router } from "express"
+import express, { NextFunction, Request, RequestHandler, Response } from "express"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import "./vitest"
 import request from "supertest"
-import { RestError, ServerConfiguration, middlewares, restMethod, routerBuilder, setupServer, stopServer } from "./Server.js"
+import {
+  RestError,
+  ServerConfiguration,
+  middlewares,
+  restMethod,
+  routerBuilder,
+  setupServer,
+  stopServer,
+} from "./Server.js"
 import { Logger } from "./Logger.js"
 
 const logger = Logger()
 
 async function simulateFetch(
-  router: Router,
+  handler: RequestHandler,
   method: string,
   path: string,
   role?: string,
   data?: object,
 ) {
+  const app = setupApp(handler)
+  const call = request(app)[method](path)
+  const prepared = role ? call.set("X-Test-User-Type", role) : call
+  return await (data ? prepared.send(data) : prepared)
+}
+
+function setupApp(handler) {
   const app = express()
   app.use(express.urlencoded({ extended: false }))
   app.use(express.json())
@@ -24,11 +39,8 @@ async function simulateFetch(
     }
     next()
   })
-  app.use(router)
-
-  const call = request(app)[method](path)
-  const prepared = role ? call.set("X-Test-User-Type", role) : call
-  return await (data ? prepared.send(data) : prepared)
+  app.use(handler)
+  return app
 }
 
 function expectServerStartLog() {
@@ -72,6 +84,25 @@ describe("Server", () => {
       const response = await simulateFetch(middleware, "get", "/non-existing-file")
       expect(response.status).toBe(200)
       expect(response.text).toEqual(`this file exists only for test purposes.\n`)
+    })
+  })
+
+  describe("fileUpload middleware", () => {
+    it("should accept a file as upload", async () => {
+      logger.runInTest(expect)
+      const middleware = middlewares.fileUpload(2 * 1024 * 1024)
+      const app = setupApp(middleware)
+      const upload = new Promise(async resolve => {
+        app.post("/uploads", (req, res) => {
+          resolve(req.files)
+          res.status(200).json("ok")
+        })
+      })
+      await request(app).post("/uploads").attach("file", __filename)
+      const result = await upload
+      expect(result).toEqual(
+        expect.objectContaining({ file: expect.objectContaining({ name: "Servertest.ts" }) }),
+      )
     })
   })
 
@@ -151,6 +182,19 @@ describe("Server", () => {
       config = await setupServer({ logger, middlewares: [builder.build()] })
       const result = await request(config.app).get("/base-path/my-path").expect(200)
       expect(result.body).toEqual("Hello world")
+    })
+
+    it("should handle exceptions", async () => {
+      expectServerStartLog()
+      logger.expect({ level: "error", status: 400, message: "test exception" })
+      const router = routerBuilder()
+        .get("/test", () => {
+          throw new RestError(400, "test exception")
+        })
+        .build()
+      config = await setupServer({ logger, middlewares: [router] })
+      const result = await request(config.app).get("/test").expect(400)
+      expect(result.body).toEqual({ error: "test exception" })
     })
   })
 })

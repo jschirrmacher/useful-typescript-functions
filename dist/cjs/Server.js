@@ -22,11 +22,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.routerBuilder = exports.middlewares = exports.stopServer = exports.setupServer = exports.RestError = exports.restMethod = void 0;
-const http_1 = require("http");
 const express_1 = __importStar(require("express"));
+const express_fileupload_1 = __importDefault(require("express-fileupload"));
 const fs_1 = require("fs");
+const http_1 = require("http");
 exports.restMethod = ["get", "post", "put", "patch", "delete"];
 class RestError extends Error {
     constructor(status, message) {
@@ -89,19 +93,34 @@ exports.middlewares = {
         }
         return loggingMiddleware;
     },
+    fileUpload(maxUploadSize) {
+        return (0, express_fileupload_1.default)({
+            safeFileNames: true,
+            preserveExtension: true,
+            limits: { fileSize: maxUploadSize },
+        });
+    },
 };
 function routerBuilder(basePath) {
-    const router = (0, express_1.Router)();
-    const routeDefinition = (method) => (path, handler) => {
-        router[method]((basePath || "") + path, async (req, res, next) => {
+    function tryCatch(handler) {
+        return async (req, res, next) => {
             try {
                 const result = await handler(req, res, next);
-                res.json(result);
+                if (result) {
+                    res.json(result);
+                }
+                else {
+                    next();
+                }
             }
             catch (error) {
-                res.status(error.status || 500).json({ error });
+                next(error);
             }
-        });
+        };
+    }
+    const router = (0, express_1.Router)();
+    const routeDefinition = (method) => (path, ...handlers) => {
+        router[method]((basePath || "") + path, ...handlers.map(tryCatch));
         return builder;
     };
     const builder = Object.assign({ build: () => router }, ...exports.restMethod.map(method => ({ [method]: routeDefinition(method) })));

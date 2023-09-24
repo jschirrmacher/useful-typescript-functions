@@ -1,6 +1,7 @@
-import { createServer } from "http";
 import express, { Router } from "express";
+import fileUpload from "express-fileupload";
 import { existsSync, readFileSync } from "fs";
+import { createServer } from "http";
 export const restMethod = ["get", "post", "put", "patch", "delete"];
 export class RestError extends Error {
     constructor(status, message) {
@@ -60,19 +61,34 @@ export const middlewares = {
         }
         return loggingMiddleware;
     },
+    fileUpload(maxUploadSize) {
+        return fileUpload({
+            safeFileNames: true,
+            preserveExtension: true,
+            limits: { fileSize: maxUploadSize },
+        });
+    },
 };
 export function routerBuilder(basePath) {
-    const router = Router();
-    const routeDefinition = (method) => (path, handler) => {
-        router[method]((basePath || "") + path, async (req, res, next) => {
+    function tryCatch(handler) {
+        return async (req, res, next) => {
             try {
                 const result = await handler(req, res, next);
-                res.json(result);
+                if (result) {
+                    res.json(result);
+                }
+                else {
+                    next();
+                }
             }
             catch (error) {
-                res.status(error.status || 500).json({ error });
+                next(error);
             }
-        });
+        };
+    }
+    const router = Router();
+    const routeDefinition = (method) => (path, ...handlers) => {
+        router[method]((basePath || "") + path, ...handlers.map(tryCatch));
         return builder;
     };
     const builder = Object.assign({ build: () => router }, ...restMethod.map(method => ({ [method]: routeDefinition(method) })));

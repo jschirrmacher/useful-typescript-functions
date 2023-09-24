@@ -72,7 +72,9 @@
     "vitest": "0.34.4"
   },
   "dependencies": {
+    "@types/express-fileupload": "^1.4.2",
     "express": "4.18.2",
+    "express-fileupload": "^1.4.0",
     "yamljs": "0.3.0"
   }
 }
