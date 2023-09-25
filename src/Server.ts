@@ -101,7 +101,7 @@ export const middlewares = {
   },
 }
 
-export function routerBuilder(basePath?: string) {
+export function routerBuilder(basePath?: string, name?: string) {
   function tryCatch(handler: RequestHandler) {
     return async (req: Request, res: Response, next: NextFunction) => {
       try {
@@ -118,6 +118,8 @@ export function routerBuilder(basePath?: string) {
   }
 
   const router = Router()
+  Object.defineProperty(router, "name", { value: name })
+
   const routeDefinition =
     (method: RestMethod) =>
     (path: string, ...handlers: RequestHandler[]) => {
@@ -125,7 +127,7 @@ export function routerBuilder(basePath?: string) {
       return builder
     }
   const builder = Object.assign(
-    { build: () => router },
+    { build: () => router as RequestHandler },
     ...restMethod.map(method => ({ [method]: routeDefinition(method) })),
   ) as RouterBuilder
 

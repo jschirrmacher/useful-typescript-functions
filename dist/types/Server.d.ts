@@ -33,5 +33,5 @@ export declare const middlewares: {
     requestLogger(logger: Pick<typeof console, "debug">, logLevel: LogLevel): RequestHandler;
     fileUpload(maxUploadSize: number): express.RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
 };
-export declare function routerBuilder(basePath?: string): RouterBuilder;
+export declare function routerBuilder(basePath?: string, name?: string): RouterBuilder;
 export {};

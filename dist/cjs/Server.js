@@ -101,7 +101,7 @@ exports.middlewares = {
         });
     },
 };
-function routerBuilder(basePath) {
+function routerBuilder(basePath, name) {
     function tryCatch(handler) {
         return async (req, res, next) => {
             try {
@@ -119,6 +119,7 @@ function routerBuilder(basePath) {
         };
     }
     const router = (0, express_1.Router)();
+    Object.defineProperty(router, "name", { value: name });
     const routeDefinition = (method) => (path, ...handlers) => {
         router[method]((basePath || "") + path, ...handlers.map(tryCatch));
         return builder;
