@@ -7,8 +7,8 @@ import { Server } from "http";
 import { LogLevel } from "./Logger.js";
 type Logger = Pick<typeof console, "debug" | "info" | "error">;
 export declare const restMethod: readonly ["get", "post", "put", "patch", "delete"];
-type RestMethod = (typeof restMethod)[number];
-type RequestHandler = (req: Request, res: Response, next: NextFunction) => unknown;
+export type RestMethod = (typeof restMethod)[number];
+export type RequestHandler = (req: Request, res: Response, next: NextFunction) => unknown;
 type RouterBuilder = {
     build: () => RequestHandler;
 } & {

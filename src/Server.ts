@@ -6,8 +6,8 @@ import { LogLevel } from "./Logger.js"
 
 type Logger = Pick<typeof console, "debug" | "info" | "error">
 export const restMethod = ["get", "post", "put", "patch", "delete"] as const
-type RestMethod = (typeof restMethod)[number]
-type RequestHandler = (req: Request, res: Response, next: NextFunction) => unknown
+export type RestMethod = (typeof restMethod)[number]
+export type RequestHandler = (req: Request, res: Response, next: NextFunction) => unknown
 type RouterBuilder = { build: () => RequestHandler } & {
   [m in RestMethod]: (path: string, ...handlers: RequestHandler[]) => RouterBuilder
 }
