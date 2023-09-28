@@ -12,8 +12,8 @@ A useful collection of functions missing in TypeScript.
 - [**oneByOne** run asynchronous functions one after each other](#onebyone)
 - [**Logger** a structured log file generator which can easily be tested](#logger)
 - [**CSVLogger** can be used to log to a CSV file](#csvlogger)
-- [**Server** to simplify creation of express.js servers and routers](src/Server)
-- [**Files** to help handle files, especially image previews](src/Files)
+- [**Server** to simplify creation of express.js servers and routers](src/Server.md)
+- [**Files** to help handle files, especially image previews](src/Files.md)
 
 ## What is the difference between a flat and a complex object?
 
