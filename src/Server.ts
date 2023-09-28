@@ -118,7 +118,9 @@ export function routerBuilder(basePath?: string, name?: string) {
   }
 
   const router = Router()
-  Object.defineProperty(router, "name", { value: name })
+  if (name) {
+    Object.defineProperty(router, "name", { value: name })
+  }
 
   const routeDefinition =
     (method: RestMethod) =>
