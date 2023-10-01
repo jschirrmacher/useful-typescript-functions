@@ -33,6 +33,12 @@ jobs:
           fi
           cat $GITHUB_OUTPUT
 
+      - name: Update package-lock
+        id: update-package-lock
+        if: steps.gitCheck.outputs.modified == 'true'
+        run: |
+          npm install
+
       - name: Create Pull Request
         id: createPR
         if: steps.gitCheck.outputs.modified == 'true'
