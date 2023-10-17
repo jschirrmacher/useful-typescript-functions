@@ -126,6 +126,13 @@ describe("Server", () => {
       request(config.app).get("/non-existing-file").expect(404)
     })
 
+    it("should not log complete error messages with stack on 404 errors", async () => {
+      expectServerStartLog()
+      logger.expect({ level: "error", message: "404 Not found: GET /non-existing-file" })
+      config = await setupServer({ logger })
+      await request(config.app).get("/non-existing-file").expect(404)
+    })
+
     it("should return the error code", async () => {
       expectServerStartLog()
       logger.expect({ level: "error", message: "not allowed" })

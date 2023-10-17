@@ -33,7 +33,11 @@ export class RestError extends Error {
 export async function setupServer(options?: ServerConfiguration) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const errorHandler = (error: Error, req: Request, res: Response, _next: NextFunction) => {
-    config.logger.error(error)
+    if (error instanceof RestError && error.status === 404) {
+      config.logger.error(`404 Not found: ${req.method.toUpperCase()} ${req.path}`)
+    } else {
+      config.logger.error(error)
+    }
     res.status(error instanceof RestError ? error.status : 500).json({ error: error.message })
   }
 
