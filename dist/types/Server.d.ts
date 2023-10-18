@@ -26,6 +26,11 @@ export declare class RestError extends Error {
     status: number;
     constructor(status: number, message: string);
 }
+export declare class Redirection extends Error {
+    location: string;
+    status: number;
+    constructor(location: string, temporary?: boolean);
+}
 export declare function setupServer(options?: ServerConfiguration): Promise<Required<ServerConfiguration>>;
 export declare function stopServer(config: ServerConfiguration): void;
 export declare const middlewares: {

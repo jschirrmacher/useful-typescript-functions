@@ -1,4 +1,4 @@
-## `Server`
+# Server
 
 Helps running a http server based on expressjs. It brings a configuration to enable consuming JSON data, handle non-existing routes by returning a 404 error, and a general error handler which catches `RestError`s, logs them, and creating a response with the corresponding status and a JSON content with more information about the error.
 
@@ -28,7 +28,7 @@ await setupServer({
 })
 ```
 
-### Setting up routes
+## Setting up routes
 
 There is a `routerBuilder()` function which simplifies creating routes on the server. Using it looks like this:
 
@@ -42,16 +42,22 @@ The router can then be used as a middleware for the server.
 
 The builder can get an optional base path which every route defined on the router will be prepended with.
 
-### Provided Middlewares
+If the return value of a handler is `undefined`, the next handler is invoked. If not, the return value is used as the body of the response. In case of an object or an array, the response will get an "Content-Type" of `application/json`, else it is `text/plain`. If the client sends an `Accept: application/json` header, the response is `application/json` in any case.
 
-#### `staticFiles(distPath: string)`
+It is possible to send errors by throwing an `RestError`. Its constructor will get the status code and the error text as parameters. The response will get this status code and an `application/json` content containing an object with an `error` attribute with the error text.
+
+If you throw a `Redirection`, a `Location` header will be sent with the URL specified in the `Redirection` object. Its constructor accepts also a `temporary` parameter, which defaults to `true` which means that it is a temporary redirect ([http/302](https://http.cat/302)). If you set it to `false`, a [status code of 301](https://http.cat/301) is used, which means that the redirect might be cached by the client, so that is permanent.
+
+## Provided Middlewares
+
+### `staticFiles(distPath: string)`
 
 This function returns an optional middleware to be used for `setupServer()` which serves files in the specified `distPath` folder. This folder should also contain an `index.html` file, which is served if the requested file does not exist. This helps creating single page applications aware of deep links.
 
-#### `requestLogger(logger: Logger, level: LogLevel)`
+### `requestLogger(logger: Logger, level: LogLevel)`
 
-Use this logger middleware if you want to log requests handled by the server. The `level` parameter defines, if log messages actually occur. A good practice could be to provide `process.env.LOGLEVEL` here. If it is set to `debug`, the requests are acutally logged.
+Use this logger middleware if you want to log requests handled by the server. The `level` parameter defines, if log messages actually occur. A good practice could be to provide `process.env.LOGLEVEL` here. If it is set to `debug`, the requests are actually logged.
 
-#### `fileUpload(maxUploadSize: number)`
+### `fileUpload(maxUploadSize: number)`
 
 A middleware to allow file uploads.

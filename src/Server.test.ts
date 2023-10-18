@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import "./vitest"
 import request from "supertest"
 import {
+  Redirection,
   RestError,
   ServerConfiguration,
   middlewares,
@@ -46,6 +47,22 @@ function setupApp(handler) {
 function expectServerStartLog() {
   logger.expect({ level: "info", message: "Running on http://localhost:8080" })
 }
+
+const notAllowedCode = 403
+const notAllowedError = new RestError(notAllowedCode, "not allowed")
+const notAllowed = (req: Request, res: Response, next: NextFunction) => next(notAllowedError)
+
+const url = "https://new-service.org"
+const redirectMiddleware = routerBuilder("/", "redirect")
+  .get("abc", () => {
+    throw new Redirection(url)
+  })
+  .build()
+
+const plainText = "plain text"
+const textMiddleware = routerBuilder("/", "text")
+  .get("", () => plainText)
+  .build()
 
 describe("Server", () => {
   afterEach(() => {
@@ -107,13 +124,11 @@ describe("Server", () => {
   })
 
   describe("setupServer", () => {
-    const notAllowedCode = 403
-    const notAllowedError = new RestError(notAllowedCode, "not allowed")
-    const notAllowed = (req: Request, res: Response, next: NextFunction) => next(notAllowedError)
     let config: ServerConfiguration
 
     beforeEach(() => {
       logger.runInTest(expect)
+      expectServerStartLog()
     })
 
     afterEach(() => {
@@ -121,38 +136,57 @@ describe("Server", () => {
     })
 
     it("should report a 404 error for unknown routes", async () => {
-      expectServerStartLog()
       config = await setupServer({ logger })
       request(config.app).get("/non-existing-file").expect(404)
     })
 
     it("should not log complete error messages with stack on 404 errors", async () => {
-      expectServerStartLog()
       logger.expect({ level: "error", message: "404 Not found: GET /non-existing-file" })
       config = await setupServer({ logger })
       await request(config.app).get("/non-existing-file").expect(404)
     })
 
     it("should return the error code", async () => {
-      expectServerStartLog()
       logger.expect({ level: "error", message: "not allowed" })
       config = await setupServer({ logger, middlewares: [notAllowed] })
       await request(config.app).get("/abc").expect(notAllowedCode)
     })
 
     it("should log errors", async () => {
-      expectServerStartLog()
       logger.expect({ level: "error", message: "not allowed" })
       config = await setupServer({ logger, middlewares: [notAllowed] })
       await request(config.app).get("/abc")
     })
 
     it("should send the error message in JSON format", async () => {
-      expectServerStartLog()
       logger.expect({ level: "error", message: "not allowed" })
       config = await setupServer({ logger, middlewares: [notAllowed] })
       const result = await request(config.app).get("/abc")
       expect(result.body).toEqual({ error: "not allowed" })
+    })
+
+    it("should handle redirects", async () => {
+      config = await setupServer({ logger, middlewares: [redirectMiddleware] })
+      const result = await request(config.app).get("/abc")
+      expect(result.statusCode).toEqual(302)
+      expect(result.headers).toEqual(expect.objectContaining({ location: url }))
+    })
+
+    it("should send text responses if the handler returns plain text", async () => {
+      config = await setupServer({ logger, middlewares: [textMiddleware] })
+      const result = await request(config.app)
+        .get("/")
+        .expect(200)
+      expect(result.text).toEqual(plainText)
+    })
+
+    it("should force json responses if the accept header is set to json", async () => {
+      config = await setupServer({ logger, middlewares: [textMiddleware] })
+      const result = await request(config.app)
+        .get("/")
+        .set("Accept", "application/json")
+        .expect(200)
+      expect(result.text).toEqual(`"${plainText}"`)
     })
   })
 
@@ -188,7 +222,7 @@ describe("Server", () => {
       builder.get("/my-path", () => `Hello world`)
       config = await setupServer({ logger, middlewares: [builder.build()] })
       const result = await request(config.app).get("/base-path/my-path").expect(200)
-      expect(result.body).toEqual("Hello world")
+      expect(result.text).toEqual("Hello world")
     })
 
     it("should handle exceptions", async () => {

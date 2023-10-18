@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.routerBuilder = exports.middlewares = exports.stopServer = exports.setupServer = exports.RestError = exports.restMethod = void 0;
+exports.routerBuilder = exports.middlewares = exports.stopServer = exports.setupServer = exports.Redirection = exports.RestError = exports.restMethod = void 0;
 const express_1 = __importStar(require("express"));
 const express_fileupload_1 = __importDefault(require("express-fileupload"));
 const fs_1 = require("fs");
@@ -39,10 +39,23 @@ class RestError extends Error {
     }
 }
 exports.RestError = RestError;
+class Redirection extends Error {
+    constructor(location, temporary = true) {
+        super("Redirect");
+        this.location = location;
+        this.status = temporary ? 302 : 301;
+    }
+}
+exports.Redirection = Redirection;
 async function setupServer(options) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const errorHandler = (error, req, res, _next) => {
-        config.logger.error(error);
+        if (error instanceof RestError && error.status === 404) {
+            config.logger.error(`404 Not found: ${req.method.toUpperCase()} ${req.path}`);
+        }
+        else {
+            config.logger.error(error);
+        }
         res.status(error instanceof RestError ? error.status : 500).json({ error: error.message });
     };
     const app = options?.app || (0, express_1.default)();
@@ -106,20 +119,32 @@ function routerBuilder(basePath, name) {
         return async (req, res, next) => {
             try {
                 const result = await handler(req, res, next);
-                if (result) {
-                    res.json(result);
+                if (result !== undefined) {
+                    if (req.header("accept")?.match(/json/) || "object" === typeof result) {
+                        res.json(result);
+                    }
+                    else {
+                        res.send(result);
+                    }
                 }
                 else {
                     next();
                 }
             }
             catch (error) {
-                next(error);
+                if (error instanceof Redirection) {
+                    res.status(error.status).location(error.location).json({ redirectTo: error.location });
+                }
+                else {
+                    next(error);
+                }
             }
         };
     }
     const router = (0, express_1.Router)();
-    Object.defineProperty(router, "name", { value: name });
+    if (name) {
+        Object.defineProperty(router, "name", { value: name });
+    }
     const routeDefinition = (method) => (path, ...handlers) => {
         router[method]((basePath || "") + path, ...handlers.map(tryCatch));
         return builder;

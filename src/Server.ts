@@ -30,6 +30,17 @@ export class RestError extends Error {
   }
 }
 
+export class Redirection extends Error {
+  location
+  status
+
+  constructor(location: string, temporary = true) {
+    super("Redirect")
+    this.location = location
+    this.status = temporary ? 302 : 301
+  }
+}
+
 export async function setupServer(options?: ServerConfiguration) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const errorHandler = (error: Error, req: Request, res: Response, _next: NextFunction) => {
@@ -110,13 +121,21 @@ export function routerBuilder(basePath?: string, name?: string) {
     return async (req: Request, res: Response, next: NextFunction) => {
       try {
         const result = await handler(req, res, next)
-        if (result) {
-          res.json(result)
+        if (result !== undefined) {
+          if (req.header("accept")?.match(/json/) || "object" === typeof result) {
+            res.json(result)
+          } else {
+            res.send(result)
+          }
         } else {
           next()
         }
       } catch (error) {
-        next(error)
+        if (error instanceof Redirection) {
+          res.status(error.status).location(error.location).json({ redirectTo: error.location })
+        } else {
+          next(error)
+        }
       }
     }
   }
