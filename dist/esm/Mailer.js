@@ -1,4 +1,4 @@
-export function MailerFactory(nodeMailer, render, logger = console, config) {
+export function Mailer(nodeMailer, render, logger = console, config) {
     const { baseUrl, emailFrom } = {
         baseUrl: "http://localhost:" + (config?.port || 8080),
         emailFrom: "me@localhost",

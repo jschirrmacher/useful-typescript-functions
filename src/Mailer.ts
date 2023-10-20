@@ -35,7 +35,7 @@ interface MailTransport {
   sendMail(options: MailOptions, callback: (err?: Error) => void): void
 }
 
-export function MailerFactory(
+export function Mailer(
   nodeMailer: typeof NodeMailer,
   render: RenderFunction,
   logger: Logger = console,
@@ -70,4 +70,4 @@ export function MailerFactory(
   }
 }
 
-export type Mailer = ReturnType<typeof MailerFactory>
+export type Mailer = ReturnType<typeof Mailer>

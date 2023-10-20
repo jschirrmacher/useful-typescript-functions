@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MailerFactory = void 0;
-function MailerFactory(nodeMailer, render, logger = console, config) {
+exports.Mailer = void 0;
+function Mailer(nodeMailer, render, logger = console, config) {
     const { baseUrl, emailFrom } = {
         baseUrl: "http://localhost:" + (config?.port || 8080),
         emailFrom: "me@localhost",
@@ -27,5 +27,5 @@ function MailerFactory(nodeMailer, render, logger = console, config) {
         },
     };
 }
-exports.MailerFactory = MailerFactory;
+exports.Mailer = Mailer;
 //# sourceMappingURL=Mailer.js.map

@@ -2,7 +2,7 @@ import type NodeMailer from "nodemailer"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { Logger } from "."
-import { MailerConfig, MailerFactory, RenderFunction } from "./Mailer.js"
+import { MailerConfig, Mailer, RenderFunction } from "./Mailer.js"
 
 const john = "john@skynet.com"
 const template = { subject: "Mail to {{name}}", html: "Dear {{name}}" }
@@ -41,7 +41,7 @@ function setup(sendResult: "none" | "ok" | "error" = "ok", config: MailerConfig 
   const mailer = { createTransport } as unknown as typeof NodeMailer
   const render: RenderFunction = (template, vars) =>
     template.replace(/\{\{(\w+)}}/gs, (t, k: string) => vars[k])
-  const { send } = MailerFactory(mailer, render, logger, config)
+  const { send } = Mailer(mailer, render, logger, config)
 
   return { sendMail, send, createTransport }
 }
