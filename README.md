@@ -1,19 +1,20 @@
-# Missing TypeScript Functions
+# Useful TypeScript Functions
 
-A useful collection of functions missing in TypeScript.
+A collection of useful functions for applications in TypeScript.
 
 - [**diff** two complex objects](#diff)
 - [**flatten** a complex object to a list of attributes with their values](#flatten)
 - [**inflate** a complex object from a list of attributes](#inflate)
-- [**objectContains** partial comparision of objects](#objectcontains)
-- [**objcetContaining** get a function to partial compare objects with](#objectcontaining)
-- [**renameAttribute** in a flat object](#renameAttribute)
+- [**objectContains** partial comparison of objects](#objectcontains)
+- [**objectContaining** get a function to partial compare objects with](#objectcontaining)
+- [**renameAttribute** in a flat object](#renameattribute)
 - [**mutate** only allowed fields of a flat object](#mutate)
 - [**oneByOne** run asynchronous functions one after each other](#onebyone)
 - [**Logger** a structured log file generator which can easily be tested](#logger)
 - [**CSVLogger** can be used to log to a CSV file](#csvlogger)
 - [**Server** to simplify creation of express.js servers and routers](src/Server.md)
 - [**Files** to help handle files, especially image previews](src/Files.md)
+- [**Mailer** for sending html templated emails easily](src/Mailer.md)
 
 ## What is the difference between a flat and a complex object?
 
@@ -178,7 +179,7 @@ const result = await oneByOne([
 
 A testable [JSONL](https://jsonlines.org/) (Newline separated JSON) logger which allows to intercept log messages, and test for expected ones in a test, or even check for unexpected ones.
 
-### Usage in a program:
+### Usage in a program
 
 ```ts
 import { Logger } from "useful-typescript-functions"
@@ -189,7 +190,7 @@ logger.debug("test")
 logger.info({ message: "structured log data", source: "this program" })
 
 logger.setGlobal({ info: "global information" })
-logger.error("an error occured")
+logger.error("an error occurred")
 ```
 
 results in
@@ -197,10 +198,10 @@ results in
 ```JSON
 {"level":"debug","message":"test"}
 {"level":"info","message":"structured log data","source":"this program"}
-{"level":"error","message":"an error occured","info":"global information"}
+{"level":"error","message":"an error occurred","info":"global information"}
 ```
 
-### Usage in a test:
+### Usage in a test
 
 ```ts
 import { beforeEach, describe, expect, it } from "vitest"
