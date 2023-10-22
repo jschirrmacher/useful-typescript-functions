@@ -1,6 +1,7 @@
 import origFs from "fs/promises";
 import { resolve, join } from "path";
 const allowedSizeOptions = ["width", "height", "fit", "position", "kernel"];
+const isoDatePattern = /([T\s](([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)?(\15([0-5]\d))?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?/;
 export function getPreviewFolder(options) {
     return ("preview_" +
         Object.keys(options)
@@ -11,7 +12,7 @@ export function getPreviewFolder(options) {
             .replace(/\s+/g, "-"));
 }
 export function Files({ sharp, fs } = {}) {
-    const { mkdir, readFile, writeFile } = (fs || origFs);
+    const { mkdir, readFile, writeFile } = fs || origFs;
     const helper = {
         async mkdirp(path) {
             await mkdir(path, { recursive: true });
@@ -39,6 +40,15 @@ export function Files({ sharp, fs } = {}) {
                 }
                 return undefined;
             }
+        },
+        async readJSON(fileWithPath) {
+            const content = await readFile(fileWithPath);
+            return JSON.parse(content.toString(), (_, value) => {
+                if (typeof value === "string" && value.match(isoDatePattern)) {
+                    return new Date(value);
+                }
+                return value;
+            });
         },
     };
     return helper;

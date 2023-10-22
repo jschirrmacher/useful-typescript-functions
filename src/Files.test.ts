@@ -9,7 +9,7 @@ export const jpg = hexToBuffer(
     "01".repeat(64) +
     "ffc2000b080001000101011100ffc400140001" +
     "00".repeat(15) +
-    "03ffda00080101000000013Fffd9"
+    "03ffda00080101000000013Fffd9",
 )
 
 function mockFs() {
@@ -83,7 +83,7 @@ describe("FileHelper", () => {
         expect(fs.writeFile).toBeCalledWith(
           "/tmp/gallery/preview_20/123_file-1.jpg",
           expect.any(Buffer),
-          "binary"
+          "binary",
         )
     })
 
@@ -109,6 +109,24 @@ describe("FileHelper", () => {
       expect(getPreviewFolder({ height: 40 })).toEqual("preview_40")
       expect(getPreviewFolder({ width: 30, height: 40 })).toEqual("preview_40_30")
       expect(getPreviewFolder({ width: 30, fit: "inside" })).toEqual("preview_inside_30")
+    })
+  })
+
+  describe("readJSON", () => {
+    const testData: [string, Date][] = [
+      ["2023-10-22T09:20:00.123Z", new Date("2023-10-22T09:20:00.123Z")],
+      ["2023-10-22T11:20:00.123+02:00", new Date("2023-10-22T09:20:00.123Z")],
+      ["2023-10-22T11:20:00.123", new Date("2023-10-22T09:20:00.123Z")],
+      ["2023-10-22T09:20:00Z", new Date("2023-10-22T09:20Z")],
+      ["2023-10-22T09:20Z", new Date("2023-10-22T09:20Z")],
+    ]
+    testData.forEach(([dateString, expected]) => {
+      it(`should parse "${dateString}" to ${expected.toISOString()}`, async () => {
+        const fs = mockFs()
+        fs.readFile.mockResolvedValue(JSON.stringify({ value: dateString }))
+        const { readJSON } = Files({ fs })
+        expect(await readJSON("test.json")).toEqual({ value: expected })
+      })
     })
   })
 })

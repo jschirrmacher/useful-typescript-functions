@@ -24,6 +24,8 @@ type SharpOperations = {
 export type SharpLib = (path: string) => SharpOperations
 
 const allowedSizeOptions = ["width", "height", "fit", "position", "kernel"] as const
+const isoDatePattern =
+  /([T\s](([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)?(\15([0-5]\d))?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?/
 
 export function getPreviewFolder(options: SizeOptions) {
   return (
@@ -37,8 +39,8 @@ export function getPreviewFolder(options: SizeOptions) {
   )
 }
 
-export function Files({ sharp, fs }: { sharp?: SharpLib, fs?: FileSystem } = {}) {
-  const { mkdir, readFile, writeFile } = (fs || origFs)
+export function Files({ sharp, fs }: { sharp?: SharpLib; fs?: FileSystem } = {}) {
+  const { mkdir, readFile, writeFile } = fs || origFs
 
   const helper = {
     async mkdirp(path: string) {
@@ -69,6 +71,16 @@ export function Files({ sharp, fs }: { sharp?: SharpLib, fs?: FileSystem } = {})
         }
         return undefined
       }
+    },
+
+    async readJSON(fileWithPath: string) {
+      const content = await readFile(fileWithPath)
+      return JSON.parse(content.toString(), (_, value) => {
+        if (typeof value === "string" && value.match(isoDatePattern)) {
+          return new Date(value)
+        }
+        return value
+      })
     },
   }
 

@@ -30,3 +30,7 @@ Returns a data URL containing a preview image of the given image file. Preview i
 Currently, jpeg, png and gif images are supported.
 
 The `options` can be used to define, how the preview image looks like. See [sharp.js documentation on `resize`](https://sharp.pixelplumbing.com/api-resize) which options exist.
+
+### `readJSON(fileWithPath: string)`
+
+Reads in a JSON file and parses strings that look like ISO dates as Date objects.

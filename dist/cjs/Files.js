@@ -7,6 +7,7 @@ exports.Files = exports.getPreviewFolder = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = require("path");
 const allowedSizeOptions = ["width", "height", "fit", "position", "kernel"];
+const isoDatePattern = /([T\s](([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)?(\15([0-5]\d))?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?/;
 function getPreviewFolder(options) {
     return ("preview_" +
         Object.keys(options)
@@ -18,7 +19,7 @@ function getPreviewFolder(options) {
 }
 exports.getPreviewFolder = getPreviewFolder;
 function Files({ sharp, fs } = {}) {
-    const { mkdir, readFile, writeFile } = (fs || promises_1.default);
+    const { mkdir, readFile, writeFile } = fs || promises_1.default;
     const helper = {
         async mkdirp(path) {
             await mkdir(path, { recursive: true });
@@ -46,6 +47,15 @@ function Files({ sharp, fs } = {}) {
                 }
                 return undefined;
             }
+        },
+        async readJSON(fileWithPath) {
+            const content = await readFile(fileWithPath);
+            return JSON.parse(content.toString(), (_, value) => {
+                if (typeof value === "string" && value.match(isoDatePattern)) {
+                    return new Date(value);
+                }
+                return value;
+            });
         },
     };
     return helper;

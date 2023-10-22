@@ -22,5 +22,6 @@ export declare function Files({ sharp, fs }?: {
     getProjectDir(envName: string, ...path: string[]): Promise<string>;
     getDataUrl(mimetype: string, data: Buffer): string;
     getPreview(folder: string, name: string, mimetype: string, options: SizeOptions): Promise<string | undefined>;
+    readJSON(fileWithPath: string): Promise<any>;
 };
 export {};
