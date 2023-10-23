@@ -51,12 +51,13 @@ export function Mailer(
 
   return {
     async send(to: string, template: MailTemplate, variables: Variables) {
+      const from = (variables.from as string) || emailFrom
       const subject = render(template.subject, { baseUrl, ...variables })
       const logPrefix = `mailto(${to}), ${subject}:`
       const html = render(template.html, { baseUrl, ...variables })
       if (transporter) {
         const { err } = await new Promise<{ err?: Error | null }>(resolve =>
-          transporter.sendMail({ from: emailFrom, to, subject, html }, err => resolve({ err })),
+          transporter.sendMail({ from, to, subject, html }, err => resolve({ err })),
         )
         if (err) {
           logger.warn(`${logPrefix} ${err}`)
