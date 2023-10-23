@@ -128,5 +128,12 @@ describe("FileHelper", () => {
         expect(await readJSON("test.json")).toEqual({ value: expected })
       })
     })
+
+    it("should not convert attributes not matching the ISO pattern", async () => {
+      const fs = mockFs()
+        fs.readFile.mockResolvedValue(JSON.stringify({ s: "abc", n: 123 }))
+        const { readJSON } = Files({ fs })
+        expect(await readJSON("test.json")).toEqual({ s: "abc", n: 123 })
+    })
   })
 })

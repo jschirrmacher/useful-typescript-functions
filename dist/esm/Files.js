@@ -1,7 +1,7 @@
 import origFs from "fs/promises";
 import { resolve, join } from "path";
 const allowedSizeOptions = ["width", "height", "fit", "position", "kernel"];
-const isoDatePattern = /([T\s](([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)?(\15([0-5]\d))?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?/;
+const isoDatePattern = /(\d{4}-[01]\d-[0-3]\d[Tt\s][0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\d[Tt\s][0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\d[Tt\s][0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))/;
 export function getPreviewFolder(options) {
     return ("preview_" +
         Object.keys(options)

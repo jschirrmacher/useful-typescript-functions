@@ -7,7 +7,7 @@ exports.Files = exports.getPreviewFolder = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = require("path");
 const allowedSizeOptions = ["width", "height", "fit", "position", "kernel"];
-const isoDatePattern = /([T\s](([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)?(\15([0-5]\d))?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?/;
+const isoDatePattern = /(\d{4}-[01]\d-[0-3]\d[Tt\s][0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\d[Tt\s][0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\d[Tt\s][0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))/;
 function getPreviewFolder(options) {
     return ("preview_" +
         Object.keys(options)
