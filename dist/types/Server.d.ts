@@ -1,26 +1,29 @@
 /// <reference types="node" />
 /// <reference types="node" />
 /// <reference types="node" />
-/// <reference types="qs" />
-import express, { Application, NextFunction, Request, Response } from "express";
+import type { Application, NextFunction, Request, Response } from "express";
 import { Server } from "http";
-import { LogLevel } from "./Logger.js";
 type Logger = Pick<typeof console, "debug" | "info" | "error">;
 export declare const restMethod: readonly ["get", "post", "put", "patch", "delete"];
 export type RestMethod = (typeof restMethod)[number];
 export type RequestHandler = (req: Request, res: Response, next: NextFunction) => unknown;
-type RouterBuilder = {
-    build: () => RequestHandler;
+type RouterDefinition = {
+    [m in RestMethod]: (path: string, ...handlers: RequestHandler[]) => RouterDefinition;
 } & {
-    [m in RestMethod]: (path: string, ...handlers: RequestHandler[]) => RouterBuilder;
+    build: () => Promise<RequestHandler>;
 };
 export interface ServerConfiguration {
-    app?: Application;
-    server?: Server;
-    port?: number;
-    logger?: Logger;
-    middlewares?: RequestHandler[];
+    app: Application;
+    server: Server;
+    port: number;
+    logger: Logger;
+    routers: (RouterDefinition | RequestHandler)[];
     readableResponses?: boolean;
+    logRequests?: boolean;
+    fileUpload?: {
+        maxSize: number;
+    };
+    staticFiles?: string;
 }
 export declare class RestError extends Error {
     status: number;
@@ -31,12 +34,7 @@ export declare class Redirection extends Error {
     status: number;
     constructor(location: string, temporary?: boolean);
 }
-export declare function setupServer(options?: ServerConfiguration): Promise<Required<ServerConfiguration>>;
+export declare function setupServer(options?: Partial<ServerConfiguration>): Promise<Required<ServerConfiguration>>;
 export declare function stopServer(config: ServerConfiguration): void;
-export declare const middlewares: {
-    staticFiles(distPath: string): RequestHandler;
-    requestLogger(logger: Pick<typeof console, "debug">, logLevel: LogLevel): RequestHandler;
-    fileUpload(maxUploadSize: number): express.RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-};
-export declare function routerBuilder(basePath?: string, name?: string): RouterBuilder;
+export declare function defineRouter(basePath?: string, name?: string): RouterDefinition;
 export {};
