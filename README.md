@@ -16,6 +16,11 @@ A collection of useful functions for applications in TypeScript.
 - [**Files** to help handle files, especially image previews](src/Files.md)
 - [**Mailer** for sending html templated emails easily](src/Mailer.md)
 
+## Upgrade from version 2
+
+The only breaking changes of version 3 are in `Server` module. If you don't use it, just upgrade.
+Else, you shoud have a look into the [Upgrade info of `Server`](src/Server.md#upgrading-from-version-2)
+
 ## What is the difference between a flat and a complex object?
 
 Complex objects are those which can contain other objects in one or more attributes.

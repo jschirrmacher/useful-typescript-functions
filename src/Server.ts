@@ -1,24 +1,25 @@
-import express, { Application, NextFunction, Request, Response, Router } from "express"
-import fileUpload from "express-fileupload"
+import type { Application, NextFunction, Request, Response } from "express"
 import { existsSync, readFileSync } from "fs"
 import { createServer, Server } from "http"
-import { LogLevel } from "./Logger.js"
 
 type Logger = Pick<typeof console, "debug" | "info" | "error">
 export const restMethod = ["get", "post", "put", "patch", "delete"] as const
 export type RestMethod = (typeof restMethod)[number]
 export type RequestHandler = (req: Request, res: Response, next: NextFunction) => unknown
-type RouterBuilder = { build: () => RequestHandler } & {
-  [m in RestMethod]: (path: string, ...handlers: RequestHandler[]) => RouterBuilder
-}
+type RouterDefinition = {
+  [m in RestMethod]: (path: string, ...handlers: RequestHandler[]) => RouterDefinition
+} & { build: () => Promise<RequestHandler> }
 
 export interface ServerConfiguration {
-  app?: Application
-  server?: Server
-  port?: number
-  logger?: Logger
-  middlewares?: RequestHandler[]
+  app: Application
+  server: Server
+  port: number
+  logger: Logger
+  routers: (RouterDefinition | RequestHandler)[]
   readableResponses?: boolean
+  logRequests?: boolean
+  fileUpload?: { maxSize: number }
+  staticFiles?: string
 }
 
 export class RestError extends Error {
@@ -41,7 +42,9 @@ export class Redirection extends Error {
   }
 }
 
-export async function setupServer(options?: ServerConfiguration) {
+export async function setupServer(options?: Partial<ServerConfiguration>) {
+  const express = (await import("express")).default
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const errorHandler = (error: Error, req: Request, res: Response, _next: NextFunction) => {
     if (error instanceof RestError && error.status === 404) {
@@ -53,12 +56,12 @@ export async function setupServer(options?: ServerConfiguration) {
   }
 
   const app = options?.app || express()
-  const config = {
+  const config: ServerConfiguration = {
     app,
     server: options?.server || createServer(app),
     port: 8080,
     logger: console,
-    middlewares: [],
+    routers: [],
     ...options,
   }
 
@@ -66,7 +69,21 @@ export async function setupServer(options?: ServerConfiguration) {
 
   config.app.use(express.urlencoded({ extended: false }))
   config.app.use(express.json())
-  config.middlewares.forEach(middleware => config.app?.use(middleware))
+  if (config.logRequests) {
+    config.app.use(await requestLogger(config.logger))
+  }
+  if (config.fileUpload) {
+    config.app.use(await fileUploadMiddleware(config.fileUpload.maxSize))
+  }
+  await Promise.all(
+    config.routers.map(async router => {
+      const buildFunction = (router as RouterDefinition).build || ((handler: RequestHandler) => handler)
+      config.app.use(await buildFunction())
+    }),
+  )
+  if (config.staticFiles) {
+    config.app.use(await staticFiles(config.staticFiles))
+  }
   config.app.use((req, res, next) => next(new RestError(404, "path not found")))
   config.app.use(errorHandler)
 
@@ -83,78 +100,88 @@ export function stopServer(config: ServerConfiguration) {
   config.server?.close()
 }
 
-export const middlewares = {
-  staticFiles(distPath: string) {
-    const staticFilesMiddleware = Router()
+async function staticFiles(distPath: string) {
+  const express = await import("express")
+  const staticFilesMiddleware = express.Router()
 
-    if (existsSync(distPath)) {
-      const indexPage = readFileSync(distPath + "/index.html").toString()
-      staticFilesMiddleware.use(express.static(distPath))
-      staticFilesMiddleware.use((req, res) => res.send(indexPage))
-    }
-    return staticFilesMiddleware as RequestHandler
-  },
-
-  requestLogger(logger: Pick<typeof console, "debug">, logLevel: LogLevel) {
-    const loggingMiddleware = Router()
-
-    if (logLevel === "debug") {
-      loggingMiddleware.use((req, res, next) => {
-        logger.debug(`${req.method} ${req.path}`)
-        next()
-      })
-    }
-    return loggingMiddleware as RequestHandler
-  },
-
-  fileUpload(maxUploadSize: number) {
-    return fileUpload({
-      safeFileNames: true,
-      preserveExtension: true,
-      limits: { fileSize: maxUploadSize },
-    })
-  },
+  if (existsSync(distPath)) {
+    const indexPage = readFileSync(distPath + "/index.html").toString()
+    staticFilesMiddleware.use(express.static(distPath))
+    staticFilesMiddleware.use((req, res) => res.send(indexPage))
+  }
+  return staticFilesMiddleware as RequestHandler
 }
 
-export function routerBuilder(basePath?: string, name?: string) {
-  function tryCatch(handler: RequestHandler) {
-    return async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const result = await handler(req, res, next)
-        if (result !== undefined) {
-          if (req.header("accept")?.match(/json/) || "object" === typeof result) {
-            res.json(result)
-          } else {
-            res.send(result)
-          }
+async function requestLogger(logger: Logger) {
+  const express = await import("express")
+  const loggingMiddleware = express.Router()
+
+  loggingMiddleware.use((req, res, next) => {
+    logger.debug(`${req.method} ${req.path}`)
+    next()
+  })
+  return loggingMiddleware as RequestHandler
+}
+
+async function fileUploadMiddleware(maxUploadSize: number) {
+  const FileUpload = (await import("express-fileupload")).default
+
+  return FileUpload({
+    safeFileNames: true,
+    preserveExtension: true,
+    limits: { fileSize: maxUploadSize },
+  })
+}
+
+function tryCatch(handler: RequestHandler) {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await handler(req, res, next)
+      if (result !== undefined) {
+        if (req.header("accept")?.match(/json/) || "object" === typeof result) {
+          res.json(result)
         } else {
-          next()
+          res.send(result)
         }
-      } catch (error) {
-        if (error instanceof Redirection) {
-          res.status(error.status).location(error.location).json({ redirectTo: error.location })
-        } else {
-          next(error)
-        }
+      } else {
+        next()
+      }
+    } catch (error) {
+      if (error instanceof Redirection) {
+        res.status(error.status).location(error.location).json({ redirectTo: error.location })
+      } else {
+        next(error)
       }
     }
   }
+}
 
-  const router = Router()
-  if (name) {
-    Object.defineProperty(router, "name", { value: name })
-  }
+export function defineRouter(basePath?: string, name?: string) {
+  const routes = [] as { method: RestMethod; path: string; handlers: RequestHandler[] }[]
 
-  const routeDefinition =
-    (method: RestMethod) =>
-    (path: string, ...handlers: RequestHandler[]) => {
-      router[method]((basePath || "") + path, ...handlers.map(tryCatch))
-      return builder
-    }
-  const builder = Object.assign(
-    { build: () => router as RequestHandler },
-    ...restMethod.map(method => ({ [method]: routeDefinition(method) })),
-  ) as RouterBuilder
+  const definition: RouterDefinition = Object.assign(
+    {
+      async build() {
+        const { Router } = await import("express")
+        const router = Router()
+        if (name) {
+          Object.defineProperty(router, "name", { value: name })
+        }
 
-  return builder
+        routes.forEach(route => {
+          router[route.method]((basePath || "") + route.path, ...route.handlers.map(tryCatch))
+        })
+
+        return router
+      },
+    },
+    ...restMethod.map(method => ({
+      [method]: (path: string, ...handlers: RequestHandler[]) => {
+        routes.push({ method, path, handlers })
+        return definition
+      },
+    })),
+  )
+
+  return definition
 }

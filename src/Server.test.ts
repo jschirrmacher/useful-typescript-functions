@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, RequestHandler, Response } from "express"
+import { NextFunction, Request, Response } from "express"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import "./vitest"
 import request from "supertest"
@@ -6,43 +6,15 @@ import {
   Redirection,
   RestError,
   ServerConfiguration,
-  middlewares,
+  defineRouter,
   restMethod,
-  routerBuilder,
   setupServer,
   stopServer,
 } from "./Server.js"
 import { Logger } from "./Logger.js"
+import { FileArray, UploadedFile } from "express-fileupload"
 
 const logger = Logger()
-
-async function simulateFetch(
-  handler: RequestHandler,
-  method: string,
-  path: string,
-  role?: string,
-  data?: object,
-) {
-  const app = setupApp(handler)
-  const call = request(app)[method](path)
-  const prepared = role ? call.set("X-Test-User-Type", role) : call
-  return await (data ? prepared.send(data) : prepared)
-}
-
-function setupApp(handler) {
-  const app = express()
-  app.use(express.urlencoded({ extended: false }))
-  app.use(express.json())
-  app.use((req, res, next) => {
-    if (req.header("X-Test-User-Type")) {
-      res.locals.user = { roles: req.header("X-Test-User-Type")?.split(",") }
-      res.locals.token = "test-token"
-    }
-    next()
-  })
-  app.use(handler)
-  return app
-}
 
 function expectServerStartLog() {
   logger.expect({ level: "info", message: "Running on http://localhost:8080" })
@@ -50,89 +22,82 @@ function expectServerStartLog() {
 
 const notAllowedCode = 403
 const notAllowedError = new RestError(notAllowedCode, "not allowed")
-const notAllowed = (req: Request, res: Response, next: NextFunction) => next(notAllowedError)
+const notAllowed = defineRouter().get("/abc", (req: Request, res: Response, next: NextFunction) =>
+  next(notAllowedError),
+)
 
 const url = "https://new-service.org"
-const redirectMiddleware = routerBuilder("/", "redirect")
-  .get("abc", () => {
-    throw new Redirection(url)
-  })
-  .build()
+const redirectMiddleware = defineRouter("/", "redirect").get("abc", () => {
+  throw new Redirection(url)
+})
 
 const plainText = "plain text"
-const textMiddleware = routerBuilder("/", "text")
-  .get("", () => plainText)
-  .build()
+const textMiddleware = defineRouter("/", "text").get("", () => plainText)
 
 describe("Server", () => {
-  afterEach(() => {
-    expect(logger).toLogAsExpected()
-  })
-
-  describe("requestLogger middleware", () => {
-    it("should log requests in debug mode", async () => {
-      logger.runInTest(expect)
-      logger.expect({ level: "debug", message: "POST /path" })
-      await simulateFetch(middlewares.requestLogger(logger, "debug"), "post", "/path")
-    })
-
-    it("should not log anything when not in debug mode", async () => {
-      logger.runInTest(expect)
-      await simulateFetch(middlewares.requestLogger(logger, "info"), "post", "/path")
-    })
-  })
-
-  describe("staticFiles middleware", () => {
-    beforeEach(() => {
-      logger.runInTest(expect)
-    })
-
-    const middleware = middlewares.staticFiles(__dirname)
-
-    it("should serve files in dist folder", async () => {
-      const response = await simulateFetch(middleware, "get", __filename.replace(__dirname, ""))
-      expect(response.status).toBe(200)
-      expect(response.body.toString().split("\n")).toContain(
-        `// this comment is here for test purposes`,
-      )
-    })
-
-    it("should serve the index.html file if file is not found, but request method is GET", async () => {
-      const response = await simulateFetch(middleware, "get", "/non-existing-file")
-      expect(response.status).toBe(200)
-      expect(response.text).toEqual(`this file exists only for test purposes.\n`)
-    })
-  })
-
-  describe("fileUpload middleware", () => {
-    it("should accept a file as upload", async () => {
-      logger.runInTest(expect)
-      const middleware = middlewares.fileUpload(2 * 1024 * 1024)
-      const app = setupApp(middleware)
-      const upload = new Promise(async resolve => {
-        app.post("/uploads", (req, res) => {
-          resolve(req.files)
-          res.status(200).json("ok")
-        })
-      })
-      await request(app).post("/uploads").attach("file", __filename)
-      const result = await upload
-      expect(result).toEqual(
-        expect.objectContaining({ file: expect.objectContaining({ name: "Servertest.ts" }) }),
-      )
-    })
-  })
+  let config: ServerConfiguration | undefined
 
   describe("setupServer", () => {
-    let config: ServerConfiguration
-
     beforeEach(() => {
       logger.runInTest(expect)
       expectServerStartLog()
     })
 
     afterEach(() => {
-      stopServer(config)
+      config && stopServer(config)
+      config = undefined
+      expect(logger).toLogAsExpected()
+    })
+
+    describe("requestLogger", () => {
+      it("should log requests in debug mode", async () => {
+        logger.expect({ level: "debug", message: "GET /" })
+        config = await setupServer({ logger, routers: [textMiddleware], logRequests: true })
+        await request(config.app).get("/")
+      })
+
+      it("should not log requests if option is not set", async () => {
+        config = await setupServer({ logger, routers: [textMiddleware] })
+        await request(config.app).get("/")
+      })
+    })
+
+    describe("staticFiles", () => {
+      it("should serve files in dist folder", async () => {
+        config = await setupServer({ logger, staticFiles: __dirname })
+        const response = await request(config.app).get(__filename.replace(__dirname, ""))
+        expect(response.status).toBe(200)
+        expect(response.body.toString().split("\n")).toContain(
+          `// this comment is here for test purposes`,
+        )
+      })
+
+      it("should serve the index.html file if file is not found, but request method is GET", async () => {
+        config = await setupServer({ logger, staticFiles: __dirname })
+        const response = await request(config.app).get("/non-existing-file")
+        expect(response.status).toBe(200)
+        expect(response.text).toEqual(`this file exists only for test purposes.\n`)
+      })
+    })
+
+    describe("fileUpload", () => {
+      it("should accept a file as upload", async () => {
+        const upload = new Promise<FileArray>(async resolve => {
+          const handler = (req: Request) => {
+            resolve(req.files as FileArray)
+            return "ok"
+          }
+          const routers = [defineRouter().post("/uploads", handler)]
+          config = await setupServer({ logger, fileUpload: { maxSize: 100000 }, routers })
+          await request(config.app).post("/uploads").attach("file", __filename)
+        })
+        const files = await upload
+        expect(files).toHaveProperty("file")
+        const file = files.file as UploadedFile
+        expect(file.data.toString().split("\n")).toContain(
+          `// this comment is here for test purposes`,
+        )
+      })
     })
 
     it("should report a 404 error for unknown routes", async () => {
@@ -148,40 +113,38 @@ describe("Server", () => {
 
     it("should return the error code", async () => {
       logger.expect({ level: "error", message: "not allowed" })
-      config = await setupServer({ logger, middlewares: [notAllowed] })
+      config = await setupServer({ logger, routers: [notAllowed] })
       await request(config.app).get("/abc").expect(notAllowedCode)
     })
 
     it("should log errors", async () => {
       logger.expect({ level: "error", message: "not allowed" })
-      config = await setupServer({ logger, middlewares: [notAllowed] })
+      config = await setupServer({ logger, routers: [notAllowed] })
       await request(config.app).get("/abc")
     })
 
     it("should send the error message in JSON format", async () => {
       logger.expect({ level: "error", message: "not allowed" })
-      config = await setupServer({ logger, middlewares: [notAllowed] })
+      config = await setupServer({ logger, routers: [notAllowed] })
       const result = await request(config.app).get("/abc")
       expect(result.body).toEqual({ error: "not allowed" })
     })
 
     it("should handle redirects", async () => {
-      config = await setupServer({ logger, middlewares: [redirectMiddleware] })
+      config = await setupServer({ logger, routers: [redirectMiddleware] })
       const result = await request(config.app).get("/abc")
       expect(result.statusCode).toEqual(302)
       expect(result.headers).toEqual(expect.objectContaining({ location: url }))
     })
 
     it("should send text responses if the handler returns plain text", async () => {
-      config = await setupServer({ logger, middlewares: [textMiddleware] })
-      const result = await request(config.app)
-        .get("/")
-        .expect(200)
+      config = await setupServer({ logger, routers: [textMiddleware] })
+      const result = await request(config.app).get("/").expect(200)
       expect(result.text).toEqual(plainText)
     })
 
     it("should force json responses if the accept header is set to json", async () => {
-      config = await setupServer({ logger, middlewares: [textMiddleware] })
+      config = await setupServer({ logger, routers: [textMiddleware] })
       const result = await request(config.app)
         .get("/")
         .set("Accept", "application/json")
@@ -190,52 +153,43 @@ describe("Server", () => {
     })
   })
 
-  describe("routerBuilder()", () => {
-    let config: ServerConfiguration | undefined
-
-    beforeEach(() => {
-      logger.runInTest(expect)
-    })
-
-    afterEach(() => {
-      config && stopServer(config)
-      config = undefined
-    })
-
-    it("should return a builder with a `build()` method returning a Router", () => {
-      const builder = routerBuilder()
-      expect(builder).toHaveProperty("build")
-      expect(builder.build().name).toEqual("router")
-    })
-
+  describe("defineRouter()", () => {
     restMethod.forEach(method => {
       it(`should have a method for defining a ${method}() method`, () => {
-        const builder = routerBuilder()
-        expect(builder).toHaveProperty(method)
-        expect(builder[method]).toBeInstanceOf(Function)
+        const router = defineRouter()
+        expect(router).toHaveProperty(method)
+        expect(router[method]).toBeInstanceOf(Function)
       })
     })
 
-    it("should prepend a base path to all defined routes", async () => {
-      expectServerStartLog()
-      const builder = routerBuilder("/base-path")
-      builder.get("/my-path", () => `Hello world`)
-      config = await setupServer({ logger, middlewares: [builder.build()] })
-      const result = await request(config.app).get("/base-path/my-path").expect(200)
-      expect(result.text).toEqual("Hello world")
-    })
+    describe("in server", () => {
+      beforeEach(() => {
+        logger.runInTest(expect)
+        expectServerStartLog()
+      })
 
-    it("should handle exceptions", async () => {
-      expectServerStartLog()
-      logger.expect({ level: "error", status: 400, message: "test exception" })
-      const router = routerBuilder()
-        .get("/test", () => {
+      afterEach(async () => {
+        config && ( stopServer(config))
+        config = undefined
+        expect(logger).toLogAsExpected()
+      })
+
+      it("should prepend a base path to all defined routes", async () => {
+        const router = defineRouter("/base-path").get("/my-path", () => `Hello world`)
+        config = await setupServer({ logger, routers: [router] })
+        const result = await request(config.app).get("/base-path/my-path").expect(200)
+        expect(result.text).toEqual("Hello world")
+      })
+
+      it("should handle exceptions", async () => {
+        logger.expect({ level: "error", status: 400, message: "test exception" })
+        const router = defineRouter().get("/test", () => {
           throw new RestError(400, "test exception")
         })
-        .build()
-      config = await setupServer({ logger, middlewares: [router] })
-      const result = await request(config.app).get("/test").expect(400)
-      expect(result.body).toEqual({ error: "test exception" })
+        config = await setupServer({ logger, routers: [router] })
+        const result = await request(config.app).get("/test").expect(400)
+        expect(result.body).toEqual({ error: "test exception" })
+      })
     })
   })
 })
