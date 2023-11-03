@@ -50,6 +50,30 @@ export function Files({ sharp, fs } = {}) {
                 return value;
             });
         },
+        async readYAML(fileWithPath) {
+            const yaml = await import("yamljs");
+            try {
+                return yaml.parse(await readFile(fileWithPath, { encoding: "utf-8" }));
+            }
+            catch (error) {
+                throw error;
+            }
+        },
+        async readConfig(fileWithPath, withoutSecrets = true) {
+            try {
+                const config = await helper.readYAML(fileWithPath);
+                if (withoutSecrets) {
+                    delete config.secrets;
+                }
+                return config;
+            }
+            catch (error) {
+                if (error.code === "ENOENT") {
+                    return { isDefault: true };
+                }
+                throw error;
+            }
+        },
     };
     return helper;
 }

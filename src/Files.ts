@@ -82,6 +82,30 @@ export function Files({ sharp, fs }: { sharp?: SharpLib; fs?: FileSystem } = {})
         return value
       })
     },
+
+    async readYAML<T>(fileWithPath: string) {
+      const yaml = await import("yamljs")
+      try {
+        return yaml.parse(await readFile(fileWithPath, { encoding: "utf-8" })) as T
+      } catch (error) {
+        throw error
+      }
+    },
+
+    async readConfig<T>(fileWithPath: string, withoutSecrets = true) {
+      try {
+        const config = await helper.readYAML(fileWithPath)
+        if (withoutSecrets) {
+          delete (config as { secrets: unknown }).secrets
+        }
+        return config as T
+      } catch (error) {
+        if ((error as { code: string }).code === "ENOENT") {
+          return { isDefault: true }
+        }
+        throw error
+      }
+    },
   }
 
   return helper
