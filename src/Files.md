@@ -1,12 +1,12 @@
 # Files helper
 
-Some functions to ease handling of files, and especially image files.
+Some functions to ease handling of files of different format.
 
 ```ts
 import { Files } from "useful-typescript-functions"
 import sharp from "sharp"
 
-const { mkdir, getProjectDir, getPreview } = Files({ sharp })
+const { mkdir, getProjectDir, getPreview, readJSON, readYAML, readConfig } = Files({ sharp })
 ```
 
 `sharp` is only a required parameter to `Files`, if you want to use `getPreview()`. If not, you may omit the parameter.
@@ -34,3 +34,13 @@ The `options` can be used to define, how the preview image looks like. See [shar
 ## `readJSON(fileWithPath: string)`
 
 Reads in a JSON file and parses strings that look like ISO dates as Date objects.
+
+## `readYAML(fileWithPath: string)`
+
+Reads in a YAML file. If you want to use this function, you need to install `yamljs` as a dependency.
+
+## `readConfig(fileWithPath: string, withoutSecrets?: boolean)`
+
+Reads in a YAML formatted config file. If you want to use this function, you need to install `yamljs` as a dependency.
+
+If the `withoutSecrets` parameter is omitted, a possible `secrets` entry in the config file is removed. If the config file is not found, a default configuration with only `{ isDefault: true }` is returned, making it easier to check for.

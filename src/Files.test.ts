@@ -12,10 +12,23 @@ export const jpg = hexToBuffer(
     "03ffda00080101000000013Fffd9",
 )
 
+const yaml = `publicTest: 42
+secrets: 
+  - mySecret: 24
+`
+
 function mockFs() {
   return {
     mkdir: vi.fn(),
-    readFile: vi.fn(),
+    readFile: vi.fn().mockImplementation(name => {
+      if (name === "/tmp/gallery/preview_20/123_file-1.jpg") {
+        return Promise.resolve(jpg)
+      } else if (name === "config.yaml") {
+        return Promise.resolve(yaml)
+      } else {
+        throw { code: "ENOENT" }
+      }
+    }),
     writeFile: vi.fn(),
   }
 }
@@ -130,9 +143,45 @@ describe("FileHelper", () => {
 
     it("should not convert attributes not matching the ISO pattern", async () => {
       const fs = mockFs()
-        fs.readFile.mockResolvedValue(JSON.stringify({ s: "abc", n: 123 }))
-        const { readJSON } = Files({ fs })
-        expect(await readJSON("test.json")).toEqual({ s: "abc", n: 123 })
+      fs.readFile.mockResolvedValue(JSON.stringify({ s: "abc", n: 123 }))
+      const { readJSON } = Files({ fs })
+      expect(await readJSON("test.json")).toEqual({ s: "abc", n: 123 })
+    })
+  })
+
+  function setupConfig() {
+    return Files({ fs: mockFs() })
+  }
+
+  describe("readYAML", () => {
+    it("should return the content of the file", async () => {
+      const { readYAML } = setupConfig()
+      expect(await readYAML("config.yaml")).toEqual({
+        publicTest: 42,
+        secrets: [{ mySecret: 24 }],
+      })
+    })
+
+    it("should throw an error if the file doesn't exist", async () => {
+      const { readYAML } = setupConfig()
+      expect(readYAML("other.yaml")).rejects.toContain({ code: "ENOENT" })
+    })
+  })
+
+  describe("readConfig", () => {
+    it("should only return the public content", async () => {
+      const { readConfig } = setupConfig()
+      expect(await readConfig("config.yaml")).toEqual({ publicTest: 42 })
+    })
+
+    it("should not include secrets", async () => {
+      const { readConfig } = setupConfig()
+      expect(await readConfig("config.yaml")).not.toHaveProperty("secrets")
+    })
+
+    it("should return the default content if the file doesn't exist", async () => {
+      const { readConfig } = setupConfig()
+      expect(await readConfig("other.yaml")).toEqual({ isDefault: true })
     })
   })
 })
