@@ -9,5 +9,5 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "testing.automaticallyOpenPeekView": "never",
-  "cSpell.words": ["fileupload"]
+  "cSpell.words": ["arrayize", "Arrayized", "fileupload"]
 }
