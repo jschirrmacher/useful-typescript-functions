@@ -1,7 +1,24 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Logger = void 0;
+exports.Logger = exports.createJSONLTransport = exports.createCSVTransport = void 0;
+const fs_1 = require("fs");
+const Streams_1 = require("./Streams");
 const consoleTransport = ((data) => console[data.level](JSON.stringify(data)));
+function createFileTransport(stream, fileName) {
+    stream.pipe((0, fs_1.createWriteStream)(fileName));
+    return (data) => {
+        const { level, message, ...meta } = data;
+        stream.write({ level, message, meta: JSON.stringify(meta) });
+    };
+}
+function createCSVTransport(fileName) {
+    return createFileTransport((0, Streams_1.createObject2CSVTransform)(",", ["level", "message", "meta"]), fileName);
+}
+exports.createCSVTransport = createCSVTransport;
+function createJSONLTransport(fileName) {
+    return createFileTransport((0, Streams_1.createObjectToJSONLTransform)(), fileName);
+}
+exports.createJSONLTransport = createJSONLTransport;
 function Logger() {
     const options = {
         silent: false,
