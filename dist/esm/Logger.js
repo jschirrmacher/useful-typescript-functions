@@ -1,4 +1,19 @@
+import { createWriteStream } from "fs";
+import { createObject2CSVTransform, createObjectToJSONLTransform } from "./Streams";
 const consoleTransport = ((data) => console[data.level](JSON.stringify(data)));
+function createFileTransport(stream, fileName) {
+    stream.pipe(createWriteStream(fileName));
+    return (data) => {
+        const { level, message, ...meta } = data;
+        stream.write({ level, message, meta: JSON.stringify(meta) });
+    };
+}
+export function createCSVTransport(fileName) {
+    return createFileTransport(createObject2CSVTransform(",", ["level", "message", "meta"]), fileName);
+}
+export function createJSONLTransport(fileName) {
+    return createFileTransport(createObjectToJSONLTransform(), fileName);
+}
 export function Logger() {
     const options = {
         silent: false,

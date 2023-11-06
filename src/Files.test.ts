@@ -45,7 +45,7 @@ function sharp() {
   return instance
 }
 
-describe("FileHelper", () => {
+describe("Files", () => {
   describe("mkdirp()", () => {
     const fs = mockFs()
     const { mkdirp } = Files({ fs })

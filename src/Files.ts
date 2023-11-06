@@ -66,7 +66,7 @@ export function Files({ sharp, fs }: { sharp?: SharpLib; fs?: FileSystem } = {})
       } catch (error) {
         if (sharp) {
           const data = await sharp(join(folder, name)).resize(options).toBuffer()
-          writeFile(previewFileName, data, "binary")
+          await writeFile(previewFileName, data, "binary")
           return helper.getDataUrl(mimetype, data)
         }
         return undefined
@@ -86,7 +86,7 @@ export function Files({ sharp, fs }: { sharp?: SharpLib; fs?: FileSystem } = {})
     async readYAML<T>(fileWithPath: string) {
       const yaml = await import("yamljs")
       try {
-        return yaml.parse(await readFile(fileWithPath, { encoding: "utf-8" })) as T
+        return yaml.parse((await readFile(fileWithPath, { encoding: "utf-8" })).toString()) as T
       } catch (error) {
         throw error
       }

@@ -28,7 +28,7 @@ describe("Logger", () => {
     logger.setGlobal({ scope: "global" })
     logger.warn("test")
     expect(logger.entries.unexpected).toContainEqual(
-      expect.objectContaining({ scope: "global", message: "test" })
+      expect.objectContaining({ scope: "global", message: "test" }),
     )
   })
 
@@ -38,7 +38,7 @@ describe("Logger", () => {
     expect(logger).toLogAsExpected()
   })
 
-  it.fails("should fail tests if an unexpected log entry occured", () => {
+  it.fails("should fail tests if an unexpected log entry ocurred", () => {
     logger.info({ message: "test message", test: "Logger", data: 42 })
     expect(logger).toLogAsExpected()
   })
@@ -49,7 +49,7 @@ describe("Logger", () => {
   })
 
   it("should work with brackets in the expected message", () => {
-    logger.expect({ level: "info", message: "text with (brackets)"})
+    logger.expect({ level: "info", message: "text with (brackets)" })
     logger.info("text with (brackets)")
     expect(logger).toLogAsExpected()
   })
