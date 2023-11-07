@@ -45,8 +45,13 @@ export async function setupServer(options) {
         config.app.use(await fileUploadMiddleware(config.fileUpload.maxSize));
     }
     await Promise.all(config.routers.map(async (router) => {
-        const buildFunction = router.build || ((handler) => handler);
-        config.app.use(await buildFunction());
+        if (router.build) {
+            const handler = await router.build();
+            config.app.use(handler);
+        }
+        else {
+            config.app.use(router);
+        }
     }));
     if (config.staticFiles) {
         config.app.use(await staticFiles(config.staticFiles));
@@ -65,17 +70,24 @@ export function stopServer(config) {
     config.server?.close();
 }
 async function staticFiles(distPath) {
-    const express = await import("express");
+    const express = (await import("express")).default;
     const staticFilesMiddleware = express.Router();
     if (existsSync(distPath)) {
         const indexPage = readFileSync(distPath + "/index.html").toString();
-        staticFilesMiddleware.use(express.static(distPath));
-        staticFilesMiddleware.use((req, res) => res.send(indexPage));
+        staticFilesMiddleware.use(express.static(distPath, { fallthrough: true }));
+        staticFilesMiddleware.use((req, res, next) => {
+            if (req.method === "GET" && !req.header("accept")?.match(/json/)) {
+                res.send(indexPage);
+            }
+            else {
+                next();
+            }
+        });
     }
     return staticFilesMiddleware;
 }
 async function requestLogger(logger) {
-    const express = await import("express");
+    const express = (await import("express")).default;
     const loggingMiddleware = express.Router();
     loggingMiddleware.use((req, res, next) => {
         logger.debug(`${req.method} ${req.path}`);
@@ -121,7 +133,7 @@ export function defineRouter(basePath, name) {
     const routes = [];
     const definition = Object.assign({
         async build() {
-            const { Router } = await import("express");
+            const { Router } = (await import("express")).default;
             const router = Router();
             if (name) {
                 Object.defineProperty(router, "name", { value: name });

@@ -81,7 +81,7 @@ function Files({ sharp, fs } = {}) {
             });
         },
         async readYAML(fileWithPath) {
-            const yaml = await Promise.resolve().then(() => __importStar(require("yamljs")));
+            const yaml = (await Promise.resolve().then(() => __importStar(require("yamljs")))).default;
             try {
                 return yaml.parse((await readFile(fileWithPath, { encoding: "utf-8" })).toString());
             }

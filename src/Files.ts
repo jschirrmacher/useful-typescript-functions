@@ -84,7 +84,7 @@ export function Files({ sharp, fs }: { sharp?: SharpLib; fs?: FileSystem } = {})
     },
 
     async readYAML<T>(fileWithPath: string) {
-      const yaml = await import("yamljs")
+      const yaml = (await import("yamljs")).default
       try {
         return yaml.parse((await readFile(fileWithPath, { encoding: "utf-8" })).toString()) as T
       } catch (error) {
