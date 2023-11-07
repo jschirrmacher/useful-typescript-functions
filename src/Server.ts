@@ -6,7 +6,7 @@ type Logger = Pick<typeof console, "debug" | "info" | "error">
 export const restMethod = ["get", "post", "put", "patch", "delete"] as const
 export type RestMethod = (typeof restMethod)[number]
 export type RequestHandler = (req: Request, res: Response, next: NextFunction) => unknown
-type RouterDefinition = {
+export type RouterDefinition = {
   [m in RestMethod]: (path: string, ...handlers: RequestHandler[]) => RouterDefinition
 } & { build: () => Promise<RequestHandler> }
 
@@ -77,8 +77,12 @@ export async function setupServer(options?: Partial<ServerConfiguration>) {
   }
   await Promise.all(
     config.routers.map(async router => {
-      const buildFunction = (router as RouterDefinition).build || ((handler: RequestHandler) => handler)
-      config.app.use(await buildFunction())
+      if ((router as RouterDefinition).build) {
+        const handler = await (router as RouterDefinition).build()
+        config.app.use(handler)
+      } else {
+        config.app.use(router as RequestHandler)
+      }
     }),
   )
   if (config.staticFiles) {
@@ -101,19 +105,25 @@ export function stopServer(config: ServerConfiguration) {
 }
 
 async function staticFiles(distPath: string) {
-  const express = await import("express")
+  const express = (await import("express")).default
   const staticFilesMiddleware = express.Router()
 
   if (existsSync(distPath)) {
     const indexPage = readFileSync(distPath + "/index.html").toString()
-    staticFilesMiddleware.use(express.static(distPath))
-    staticFilesMiddleware.use((req, res) => res.send(indexPage))
+    staticFilesMiddleware.use(express.static(distPath, { fallthrough: true }))
+    staticFilesMiddleware.use((req, res, next) => {
+      if (req.method === "GET" && !req.header("accept")?.match(/json/)) {
+        res.send(indexPage)
+      } else {
+        next()
+      }
+    })
   }
   return staticFilesMiddleware as RequestHandler
 }
 
 async function requestLogger(logger: Logger) {
-  const express = await import("express")
+  const express = (await import("express")).default
   const loggingMiddleware = express.Router()
 
   loggingMiddleware.use((req, res, next) => {
@@ -162,7 +172,7 @@ export function defineRouter(basePath?: string, name?: string) {
   const definition: RouterDefinition = Object.assign(
     {
       async build() {
-        const { Router } = await import("express")
+        const { Router } = (await import("express")).default
         const router = Router()
         if (name) {
           Object.defineProperty(router, "name", { value: name })

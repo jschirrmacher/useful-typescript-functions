@@ -7,7 +7,7 @@ type Logger = Pick<typeof console, "debug" | "info" | "error">;
 export declare const restMethod: readonly ["get", "post", "put", "patch", "delete"];
 export type RestMethod = (typeof restMethod)[number];
 export type RequestHandler = (req: Request, res: Response, next: NextFunction) => unknown;
-type RouterDefinition = {
+export type RouterDefinition = {
     [m in RestMethod]: (path: string, ...handlers: RequestHandler[]) => RouterDefinition;
 } & {
     build: () => Promise<RequestHandler>;

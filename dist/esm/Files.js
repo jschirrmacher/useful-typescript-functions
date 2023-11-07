@@ -51,7 +51,7 @@ export function Files({ sharp, fs } = {}) {
             });
         },
         async readYAML(fileWithPath) {
-            const yaml = await import("yamljs");
+            const yaml = (await import("yamljs")).default;
             try {
                 return yaml.parse((await readFile(fileWithPath, { encoding: "utf-8" })).toString());
             }

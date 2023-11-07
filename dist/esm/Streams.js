@@ -4,7 +4,7 @@ function splitCSVValues(line, separator) {
         if (value.match(/^".*"$/)) {
             return value.slice(1, -1).replace(/""/g, '"').replace(/\\n/g, "\n");
         }
-        return value;
+        return value.trim();
     }
     const pattern = new RegExp(`(?<=^|${separator})(\"(?:[^\"]|\"\")*\"|[^${separator}]*)`, "g");
     const rawFields = line.matchAll(pattern);

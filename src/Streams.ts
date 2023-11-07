@@ -1,11 +1,11 @@
-import { Transform, Writable } from "stream"
+import { Readable, Transform, Writable } from "stream"
 
 function splitCSVValues(line: string, separator: string) {
   function unescape(value: string) {
     if (value.match(/^".*"$/)) {
       return value.slice(1, -1).replace(/""/g, '"').replace(/\\n/g, "\n")
     }
-    return value
+    return value.trim()
   }
 
   const pattern = new RegExp(`(?<=^|${separator})(\"(?:[^\"]|\"\")*\"|[^${separator}]*)`, "g")
@@ -132,7 +132,7 @@ export function createArraySink<T>(sink: T[]) {
   })
 }
 
-export async function streamToArray<T>(writable: Writable): Promise<T[]> {
+export async function streamToArray<T>(writable: Readable): Promise<T[]> {
   const result = [] as T[]
   return new Promise((resolve, reject) => {
     writable

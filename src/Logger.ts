@@ -1,5 +1,5 @@
 import { createWriteStream } from "fs"
-import { createObject2CSVTransform, createObjectToJSONLTransform } from "./Streams"
+import { createObject2CSVTransform, createObjectToJSONLTransform } from "./Streams.js"
 import { Transform } from "stream"
 
 export type LogLevel = "debug" | "info" | "warn" | "error"

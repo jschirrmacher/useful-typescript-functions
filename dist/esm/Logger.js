@@ -1,5 +1,5 @@
 import { createWriteStream } from "fs";
-import { createObject2CSVTransform, createObjectToJSONLTransform } from "./Streams";
+import { createObject2CSVTransform, createObjectToJSONLTransform } from "./Streams.js";
 const consoleTransport = ((data) => console[data.level](JSON.stringify(data)));
 function createFileTransport(stream, fileName) {
     stream.pipe(createWriteStream(fileName));

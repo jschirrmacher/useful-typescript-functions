@@ -179,7 +179,7 @@ describe("Objects", () => {
     const created = createObject(original)
 
     it("should return an object containing the given attributes and values", () => {
-      expect(created).toContain(original)
+      expect(created).toEqual(original)
     })
 
     it("arrayized() should return the attributes and values in list form", () => {
