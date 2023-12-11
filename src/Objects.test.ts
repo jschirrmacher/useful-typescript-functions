@@ -3,6 +3,7 @@ import {
   arrayize,
   createObject,
   diff,
+  extract,
   flatten,
   getMutation,
   mutate,
@@ -171,6 +172,16 @@ describe("Objects", () => {
         mutable: null,
       } as unknown as typeof original)
       expect(result).toStrictEqual({ mutable: null, immutable: 1 })
+    })
+  })
+
+  describe("extract", () => {
+    it("should only contain the requested properties and values", () => {
+      const original = { a: 42, b: "test", c: { d: 4711 } }
+      expect(extract(original, ["b", "c"])).toEqual({
+        b: "test",
+        c: { d: 4711 },
+      })
     })
   })
 

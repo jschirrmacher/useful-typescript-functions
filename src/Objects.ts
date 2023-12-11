@@ -151,6 +151,17 @@ export function mutate<T>(obj: T, attributes: readonly (keyof T)[], changes: Par
   return { ...obj, ...getMutation(obj, attributes, changes) }
 }
 
+/**
+ * Extract properties with values from an object.
+ *
+ * @param obj
+ * @param props
+ * @returns new object with the extracted properties with values
+ */
+export function extract<T extends object>(obj: T, props: (keyof T)[]) {
+  return Object.fromEntries(props.map(prop => [prop, obj[prop]]))
+}
+
 export function createObject<T extends StringIndexableObject>(
   obj: T,
   writableAttributes: Array<keyof T> = Object.getOwnPropertyNames(obj),
@@ -216,6 +227,15 @@ export function createObject<T extends StringIndexableObject>(
     mutate(changes: Partial<T>): T {
       const mutated = mutate(data, writableAttributes, changes)
       return createObject(mutated, writableAttributes)
+    },
+
+    /**
+     * Extract some properties of the object.
+     * @param props
+     * @returns a new object containing only the extracted properties and values.
+     */
+    extract(props: (keyof T)[]) {
+      return createObject(extract(data, props))
     },
   }
 
