@@ -71,4 +71,14 @@ export declare function getMutation<T>(obj: T, attributes: readonly (keyof T)[],
  * @returns The mutated object
  */
 export declare function mutate<T>(obj: T, attributes: readonly (keyof T)[], changes: Partial<T>): any;
+/**
+ * Extract properties with values from an object.
+ *
+ * @param obj
+ * @param props
+ * @returns new object with the extracted properties with values
+ */
+export declare function extract<T extends object>(obj: T, props: (keyof T)[]): {
+    [k: string]: T[keyof T];
+};
 export declare function createObject<T extends StringIndexableObject>(obj: T, writableAttributes?: Array<keyof T>): any;

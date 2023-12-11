@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createObject = exports.mutate = exports.getMutation = exports.renameAttribute = exports.objectContaining = exports.objectContains = exports.diff = exports.inflate = exports.flatten = exports.arrayize = void 0;
+exports.createObject = exports.extract = exports.mutate = exports.getMutation = exports.renameAttribute = exports.objectContaining = exports.objectContains = exports.diff = exports.inflate = exports.flatten = exports.arrayize = void 0;
 function union(arr1, arr2) {
     return [...new Set([...arr1, ...arr2])];
 }
@@ -143,6 +143,17 @@ function mutate(obj, attributes, changes) {
     return { ...obj, ...getMutation(obj, attributes, changes) };
 }
 exports.mutate = mutate;
+/**
+ * Extract properties with values from an object.
+ *
+ * @param obj
+ * @param props
+ * @returns new object with the extracted properties with values
+ */
+function extract(obj, props) {
+    return Object.fromEntries(props.map(prop => [prop, obj[prop]]));
+}
+exports.extract = extract;
 function createObject(obj, writableAttributes = Object.getOwnPropertyNames(obj)) {
     const data = obj || {};
     const base = {
@@ -199,6 +210,14 @@ function createObject(obj, writableAttributes = Object.getOwnPropertyNames(obj))
         mutate(changes) {
             const mutated = mutate(data, writableAttributes, changes);
             return createObject(mutated, writableAttributes);
+        },
+        /**
+         * Extract some properties of the object.
+         * @param props
+         * @returns a new object containing only the extracted properties and values.
+         */
+        extract(props) {
+            return createObject(extract(data, props));
         },
     };
     return Object.setPrototypeOf(data, base);

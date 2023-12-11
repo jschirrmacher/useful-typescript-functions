@@ -131,6 +131,16 @@ export function getMutation(obj, attributes, changes) {
 export function mutate(obj, attributes, changes) {
     return { ...obj, ...getMutation(obj, attributes, changes) };
 }
+/**
+ * Extract properties with values from an object.
+ *
+ * @param obj
+ * @param props
+ * @returns new object with the extracted properties with values
+ */
+export function extract(obj, props) {
+    return Object.fromEntries(props.map(prop => [prop, obj[prop]]));
+}
 export function createObject(obj, writableAttributes = Object.getOwnPropertyNames(obj)) {
     const data = obj || {};
     const base = {
@@ -187,6 +197,14 @@ export function createObject(obj, writableAttributes = Object.getOwnPropertyName
         mutate(changes) {
             const mutated = mutate(data, writableAttributes, changes);
             return createObject(mutated, writableAttributes);
+        },
+        /**
+         * Extract some properties of the object.
+         * @param props
+         * @returns a new object containing only the extracted properties and values.
+         */
+        extract(props) {
+            return createObject(extract(data, props));
         },
     };
     return Object.setPrototypeOf(data, base);
