@@ -1,10 +1,15 @@
 /// <reference types="node" />
-import { Readable, Transform, Writable } from "stream";
-export declare function createLineTransform(): Transform;
-export declare function createJSONL2ObjectTransform(): Transform;
-export declare function createObjectToJSONLTransform(): Transform;
-export declare function createCSV2ObjectTransform(separator?: string, fields?: string[]): Transform;
-export declare function createObject2CSVTransform(separator?: string, predefinedFields?: string[]): Transform;
-export declare function createArraySink<T>(sink: T[]): Writable;
-export declare function streamToArray<T>(writable: Readable): Promise<T[]>;
+import { Transform } from "stream";
+export * from "./streams/CSVSink.js";
+export * from "./streams/CSVSource.js";
+export * from "./streams/JSONLSink.js";
+export * from "./streams/JSONLSource.js";
+export * from "./streams/ArraySink.js";
+export * from "./streams/DatabaseSink.js";
+export * from "./streams/KafkaSource.js";
+export * from "./streams/KeyedState.js";
+export * from "./streams/LineTransform.js";
+/**
+ * @deprecated use the several sink modules instead.
+ */
 export declare function createObjectStream(): Transform;

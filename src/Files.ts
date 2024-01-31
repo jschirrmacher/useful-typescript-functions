@@ -42,14 +42,14 @@ export function getPreviewFolder(options: SizeOptions) {
 export function Files({ sharp, fs }: { sharp?: SharpLib; fs?: FileSystem } = {}) {
   const { mkdir, readFile, writeFile } = fs || origFs
 
-  const helper = {
+  const files = {
     async mkdirp(path: string) {
       await mkdir(path, { recursive: true })
     },
 
     async getProjectDir(envName: string, ...path: string[]) {
       const resolved = process.env[envName] || resolve(process.cwd(), ...path)
-      await helper.mkdirp(resolved)
+      await files.mkdirp(resolved)
       return resolved
     },
 
@@ -59,15 +59,15 @@ export function Files({ sharp, fs }: { sharp?: SharpLib; fs?: FileSystem } = {})
 
     async getPreview(folder: string, name: string, mimetype: string, options: SizeOptions) {
       const previewFolder = getPreviewFolder(options)
-      await helper.mkdirp(join(folder, previewFolder))
+      await files.mkdirp(join(folder, previewFolder))
       const previewFileName = join(folder, previewFolder, name)
       try {
-        return helper.getDataUrl(mimetype, await readFile(previewFileName))
+        return files.getDataUrl(mimetype, await readFile(previewFileName))
       } catch (error) {
         if (sharp) {
           const data = await sharp(join(folder, name)).resize(options).toBuffer()
           await writeFile(previewFileName, data, "binary")
-          return helper.getDataUrl(mimetype, data)
+          return files.getDataUrl(mimetype, data)
         }
         return undefined
       }
@@ -92,9 +92,16 @@ export function Files({ sharp, fs }: { sharp?: SharpLib; fs?: FileSystem } = {})
       }
     },
 
+    /**
+     * Read YAML configuration file.
+     * 
+     * @param fileWithPath Path and name of configuration file in YAML format
+     * @param withoutSecrets deletes a possibly existing `secrets` entry, defaults to true
+     * @returns 
+     */
     async readConfig<T>(fileWithPath: string, withoutSecrets = true) {
       try {
-        const config = await helper.readYAML(fileWithPath)
+        const config = await files.readYAML(fileWithPath)
         if (withoutSecrets) {
           delete (config as { secrets: unknown }).secrets
         }
@@ -108,5 +115,5 @@ export function Files({ sharp, fs }: { sharp?: SharpLib; fs?: FileSystem } = {})
     },
   }
 
-  return helper
+  return files
 }

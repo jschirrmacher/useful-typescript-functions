@@ -24,6 +24,13 @@ export declare function Files({ sharp, fs }?: {
     getPreview(folder: string, name: string, mimetype: string, options: SizeOptions): Promise<string | undefined>;
     readJSON(fileWithPath: string): Promise<any>;
     readYAML<T>(fileWithPath: string): Promise<T>;
+    /**
+     * Read YAML configuration file.
+     *
+     * @param fileWithPath Path and name of configuration file in YAML format
+     * @param withoutSecrets deletes a possibly existing `secrets` entry, defaults to true
+     * @returns
+     */
     readConfig<T_1>(fileWithPath: string, withoutSecrets?: boolean): Promise<T_1 | {
         isDefault: boolean;
     }>;

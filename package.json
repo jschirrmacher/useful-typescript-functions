@@ -8,28 +8,29 @@
   },
   "keywords": [
     "object",
-    "diff",
+    "files",
+    "object-diff",
+    "logger",
+    "mailer",
+    "streams",
     "helper",
     "tools"
   ],
   "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "require": "./dist/cjs/index.js",
-      "import": "./dist/esm/index.js",
-      "default": "./dist/esm/index.js",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js",
       "types": "./dist/types/index.d.ts"
     },
     "./vitest": {
-      "require": "./dist/cjs/vitest.js",
-      "import": "./dist/esm/vitest.js",
-      "default": "./dist/esm/vitest.js",
+      "import": "./dist/vitest.js",
+      "default": "./dist/vitest.js",
       "types": "./dist/types/index.d.ts"
     },
     "./expect": {
-      "require": "./dist/cjs/expect.js",
-      "import": "./dist/esm/expect.js",
-      "default": "./dist/esm/expect.js",
+      "import": "./dist/expect.js",
+      "default": "./dist/expect.js",
       "types": "./dist/types/index.d.ts"
     }
   },
@@ -39,10 +40,9 @@
     "test:unit": "vitest --run",
     "test:watch": "vitest",
     "test:coverage": "npm run test:unit -- --coverage",
-    "build": "npm-run-all build:clean build:compile build:module",
+    "build": "npm-run-all build:clean build:compile",
     "build:clean": "rm -rf ./dist",
-    "build:compile": "tsc -b ./tsconfig.cjs.json ./tsconfig.esm.json ./tsconfig.types.json",
-    "build:module": "echo '{\"type\": \"module\"}' > ./dist/esm/package.json",
+    "build:compile": "tsc -b ./tsconfig.json ./tsconfig.types.json",
     "version:patch": "npm run build && npm version patch && git push --follow-tags && npm publish",
     "version:minor": "npm run build && npm version minor && git push --follow-tags && npm publish",
     "version:major": "npm run build && npm version major && git push --follow-tags && npm publish",
@@ -78,8 +78,10 @@
   "peerDependencies": {
     "express": "4.18.2",
     "express-fileupload": "^1.4.2",
+    "kafkajs": "2.2.4",
     "nodemailer": "^6.9.7",
     "sharp": "^0.32.6",
+    "typeorm": "0.3.19",
     "yamljs": "0.3.0"
   }
 }

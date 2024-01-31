@@ -14,8 +14,8 @@ export interface LogStruct {
     [key: string]: unknown;
 }
 export type Transport = (data: LogStruct) => void;
-export declare function createCSVTransport(fileName: string): (data: LogStruct) => void;
-export declare function createJSONLTransport(fileName: string): (data: LogStruct) => void;
+export declare function createCSVTransport(path: string): (data: LogStruct) => void;
+export declare function createJSONLTransport(path: string): (data: LogStruct) => void;
 interface ExtendableExpect {
     extend(params: object): void;
 }

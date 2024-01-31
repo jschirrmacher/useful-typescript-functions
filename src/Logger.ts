@@ -1,6 +1,5 @@
-import { createWriteStream } from "fs"
-import { createObject2CSVTransform, createObjectToJSONLTransform } from "./Streams.js"
-import { Transform } from "stream"
+import { createCSVSink, createJSONLSink } from "./Streams.js"
+import { Writable } from "stream"
 
 export type LogLevel = "debug" | "info" | "warn" | "error"
 
@@ -21,20 +20,19 @@ export type Transport = (data: LogStruct) => void
 const consoleTransport = ((data: LogStruct) =>
   console[data.level](JSON.stringify(data))) as Transport
 
-function createFileTransport(stream: Transform, fileName: string) {
-  stream.pipe(createWriteStream(fileName))
+function createFileTransport(stream: Writable) {
   return (data: LogStruct) => {
     const { level, message, ...meta } = data
     stream.write({ level, message, meta: JSON.stringify(meta) })
   }
 }
 
-export function createCSVTransport(fileName: string) {
-  return createFileTransport(createObject2CSVTransform(",", ["level", "message", "meta"]), fileName)
+export function createCSVTransport(path: string) {
+  return createFileTransport(createCSVSink({ fields: ["level", "message", "meta"], path }))
 }
 
-export function createJSONLTransport(fileName: string) {
-  return createFileTransport(createObjectToJSONLTransform(), fileName)
+export function createJSONLTransport(path: string) {
+  return createFileTransport(createJSONLSink({ path }))
 }
 
 interface MatcherState {
