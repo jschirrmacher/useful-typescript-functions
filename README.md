@@ -8,7 +8,11 @@ A dependency-free collection of useful functions for applications in TypeScript.
 - [**Server** to simplify creation of express.js servers and routers](src/Server.md)
 - [**Files** to help handle files, especially image previews](src/Files.md)
 - [**Mailer** for sending html templated emails easily](src/Mailer.md)
-- [**Streams** for easier use of text, CSV or JSONL streams](src/Streams.md)
+- [**Streams** for easier handling of streams of data](src/Streams.md)
+
+## Upgrade from version 3
+
+Version 3 of `useful-typescript-functions` only works with ESM.
 
 ## Upgrade from version 2
 
