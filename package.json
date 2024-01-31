@@ -26,12 +26,12 @@
     "./vitest": {
       "import": "./dist/vitest.js",
       "default": "./dist/vitest.js",
-      "types": "./dist/types/index.d.ts"
+      "types": "./dist/types/vitest.d.ts"
     },
     "./expect": {
       "import": "./dist/expect.js",
       "default": "./dist/expect.js",
-      "types": "./dist/types/index.d.ts"
+      "types": "./dist/types/expect.d.ts"
     }
   },
   "scripts": {
