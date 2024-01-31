@@ -12,7 +12,7 @@ A dependency-free collection of useful functions for applications in TypeScript.
 
 ## Upgrade from version 3
 
-Version 3 of `useful-typescript-functions` only works with ESM.
+Version 4 of `useful-typescript-functions` only works with ESM.
 
 ## Upgrade from version 2
 
