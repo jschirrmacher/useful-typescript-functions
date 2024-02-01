@@ -9,6 +9,7 @@ export * from "./streams/DatabaseSink.js";
 export * from "./streams/KafkaSource.js";
 export * from "./streams/KeyedState.js";
 export * from "./streams/LineTransform.js";
+export * from "./streams/OffsetProvider.js";
 /**
  * @deprecated use the several sink modules instead.
  */
