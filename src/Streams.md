@@ -22,16 +22,11 @@ pipeline.stream.on("data", line => console.log(line))
 The result would be:
 
 ```json
-{ level: 42, area: 52, other: "abc" },
+{ level: 42, area: 52, other: "abc" }
 { level: 52, area: 42, other: "def" }
 ```
 
-There is a function `run()` on the pipeline object returned from `createCSVSource` to make it possible to actually read the file only on demand. This makes it possible to set up more complex data pipelines, which have multiple input streams.
-
-```ts
-import { createCSVSource } from "useful-typescript-functions"
-createCSVSource({ path: "my-file.txt" })
-```
+There is a function `run()` on the pipeline object returned from `createCSVSource` to make it possible to actually read the file only on demand. This makes it possible to set up more complex data pipelines, which have multiple input streams. With `run()` you are in control when each stream should start processing events.`
 
 If you have large files and want to handle line by line, streams also helps use less memory, because you can handle it line by line.
 
@@ -173,6 +168,8 @@ The optional `OffsetProvider` parameter can be used to define how Kafka events a
 - **startFromTopicStart** - This predefined provider is used to read events starting from the beginning of the Kafka topic
 - **startFromTopicEnd** - This provider is also predefined, and is the default, if you omit the parameter. It advises the KafkaSource to read only newly incoming events, and no historical ones
 - **any own `OffsetProvider`** - an object implementing the `OffsetProvider` interface, which lets the KafkaSource set and get offsets for partitions. This will most likely a [KeyedState](#keyedState)
+
+A `KafkaSource` also has another function, `runWithHeadstart()` which is used to start processing events coming from the source, and resolves a promise when the events in the stream cease to flow for a given time period. This helps in replay scenarios with streams needed for slow changing data, but references by data in other streams. The events from the headstarted stream will already be in the state when events from the other stream arrive.
 
 ## KeyedState
 
