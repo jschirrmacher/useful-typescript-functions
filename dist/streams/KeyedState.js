@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.saveAllCheckpoints = exports.createState = void 0;
-const StateEntity_js_1 = require("./StateEntity.js");
+const DatabaseSinkStateEntity_js_1 = require("./DatabaseSinkStateEntity.js");
 const states = [];
 async function createState(id, dataSource, keyFunc, withoutCheckpoint = false, logger = console) {
-    const stateRepository = dataSource.getRepository(StateEntity_js_1.StateEntity);
+    const stateRepository = dataSource.getRepository(DatabaseSinkStateEntity_js_1.DatabaseSinkStateEntity);
     let timer;
     let state = {};
     let offsets;
@@ -72,10 +72,11 @@ async function createState(id, dataSource, keyFunc, withoutCheckpoint = false, l
             return; // Don't checkpoint if there are no offsets yet or if there are no changes
         }
         await stateRepository.manager.transaction(async (em) => {
-            const entities = Object.entries(state).map(([key, state]) => createStateEntity(key, state));
-            await em.delete(StateEntity_js_1.StateEntity, { id });
-            await em.insert(StateEntity_js_1.StateEntity, entities);
-            await em.insert(StateEntity_js_1.StateEntity, { id, key: "__offsets", state: JSON.stringify(offsets) });
+            const entities = Object.entries(state).map(([key, state]) => new DatabaseSinkStateEntity_js_1.DatabaseSinkStateEntity(id, key, JSON.stringify(state)));
+            const offsetsEntity = new DatabaseSinkStateEntity_js_1.DatabaseSinkStateEntity(id, "__offsets", JSON.stringify(offsets));
+            await em.delete(DatabaseSinkStateEntity_js_1.DatabaseSinkStateEntity, { id });
+            await em.insert(DatabaseSinkStateEntity_js_1.DatabaseSinkStateEntity, entities);
+            await em.insert(DatabaseSinkStateEntity_js_1.DatabaseSinkStateEntity, offsetsEntity);
             logger.info(`Created state checkpoint for ${id} with offsets ${offsets}`);
         });
         dirty = false;
@@ -90,13 +91,6 @@ async function createState(id, dataSource, keyFunc, withoutCheckpoint = false, l
                 await saveCheckpoint();
             }, 60_000);
         }
-    }
-    function createStateEntity(key, state) {
-        const entity = new StateEntity_js_1.StateEntity();
-        entity.id = id;
-        entity.key = key;
-        entity.state = JSON.stringify(state);
-        return entity;
     }
 }
 exports.createState = createState;

@@ -6,24 +6,29 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.StateEntity = void 0;
+exports.DatabaseSinkStateEntity = void 0;
 const typeorm_1 = require("typeorm");
-let StateEntity = class StateEntity {
+let DatabaseSinkStateEntity = class DatabaseSinkStateEntity {
     id;
     key;
     state;
+    constructor(id, key, state) {
+        this.id = id;
+        this.key = key;
+        this.state = state;
+    }
 };
-exports.StateEntity = StateEntity;
+exports.DatabaseSinkStateEntity = DatabaseSinkStateEntity;
 __decorate([
     (0, typeorm_1.Column)({ type: "text", primary: true })
-], StateEntity.prototype, "id", void 0);
+], DatabaseSinkStateEntity.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: "text", primary: true })
-], StateEntity.prototype, "key", void 0);
+], DatabaseSinkStateEntity.prototype, "key", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: "text" })
-], StateEntity.prototype, "state", void 0);
-exports.StateEntity = StateEntity = __decorate([
-    (0, typeorm_1.Entity)({ name: "state" })
-], StateEntity);
-//# sourceMappingURL=StateEntity.js.map
+], DatabaseSinkStateEntity.prototype, "state", void 0);
+exports.DatabaseSinkStateEntity = DatabaseSinkStateEntity = __decorate([
+    (0, typeorm_1.Entity)({ name: "dbsinkstate" })
+], DatabaseSinkStateEntity);
+//# sourceMappingURL=DatabaseSinkStateEntity.js.map

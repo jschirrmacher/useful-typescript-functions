@@ -203,3 +203,17 @@ With `keyFunc` you specify a function to retrieve the state's key from one of th
 The boolean parameter `withoutCheckpoint` (`true` in this example) specifies if the latest persisted checkpoint is to be used (`false`, the default) or not, so that the previously stored state is discarded. This might be useful if you read a Kafka topic starting from its beginning.
 
 The `KeyedState` implements the `OffsetProvider` interface and can directly be used when creating the `KafkaSource`.
+
+To use `KeyedState`, you need to include the `DatabaseSingStateEntity` in your list of entites. Therefore, import it in your orm configuration and add it to the array defining your entites.
+
+The same goes with the migration to create the required database table for the entity.
+
+```ts
+import { DatabaseSinkStateEntity, DatabaseSinkMigration } from "useful-typescript-functions"
+
+const ormConfig = {
+  entities: [__dirname + "/**/*Entity.ts", DatabaseSinkStateEntity],
+  migrations:[__dirname + "/migrations/**/*{.ts,.js}", DatabaseSinkMigration]
+  ...
+}
+```

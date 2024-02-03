@@ -26,6 +26,8 @@ __exportStar(require("./streams/KafkaSource.js"), exports);
 __exportStar(require("./streams/KeyedState.js"), exports);
 __exportStar(require("./streams/LineTransform.js"), exports);
 __exportStar(require("./streams/OffsetProvider.js"), exports);
+__exportStar(require("./streams/DatabaseSinkStateEntity.js"), exports);
+__exportStar(require("./streams/DatabaseSinkStateMigration.js"), exports);
 /**
  * @deprecated use the several sink modules instead.
  */

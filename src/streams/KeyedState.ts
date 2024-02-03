@@ -1,6 +1,6 @@
 import { OffsetProvider } from "./OffsetProvider.js"
 import { DataSource } from "typeorm"
-import { StateEntity } from "./StateEntity.js"
+import { DatabaseSinkStateEntity } from "./DatabaseSinkStateEntity.js"
 
 interface Checkpointable {
   saveCheckpoint(): Promise<void>
@@ -26,7 +26,7 @@ export async function createState<T>(
   withoutCheckpoint = false,
   logger: Logger = console,
 ) {
-  const stateRepository = dataSource.getRepository(StateEntity)
+  const stateRepository = dataSource.getRepository(DatabaseSinkStateEntity)
   let timer: NodeJS.Timeout | undefined
   let state: Record<string, T> = {}
   let offsets: string[] | undefined
@@ -106,10 +106,13 @@ export async function createState<T>(
       return // Don't checkpoint if there are no offsets yet or if there are no changes
     }
     await stateRepository.manager.transaction(async em => {
-      const entities = Object.entries(state).map(([key, state]) => createStateEntity(key, state))
-      await em.delete(StateEntity, { id })
-      await em.insert(StateEntity, entities)
-      await em.insert(StateEntity, { id, key: "__offsets", state: JSON.stringify(offsets) })
+      const entities = Object.entries(state).map(
+        ([key, state]) => new DatabaseSinkStateEntity(id, key, JSON.stringify(state)),
+      )
+      const offsetsEntity = new DatabaseSinkStateEntity(id, "__offsets", JSON.stringify(offsets))
+      await em.delete(DatabaseSinkStateEntity, { id })
+      await em.insert(DatabaseSinkStateEntity, entities)
+      await em.insert(DatabaseSinkStateEntity, offsetsEntity)
       logger.info(`Created state checkpoint for ${id} with offsets ${offsets}`)
     })
     dirty = false
@@ -126,14 +129,6 @@ export async function createState<T>(
         await saveCheckpoint()
       }, 60_000)
     }
-  }
-
-  function createStateEntity(key: string, state: unknown) {
-    const entity = new StateEntity()
-    entity.id = id
-    entity.key = key
-    entity.state = JSON.stringify(state)
-    return entity
   }
 }
 
