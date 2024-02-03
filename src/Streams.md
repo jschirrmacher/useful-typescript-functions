@@ -209,11 +209,11 @@ To use `KeyedState`, you need to include the `DatabaseSingStateEntity` in your l
 The same goes with the migration to create the required database table for the entity.
 
 ```ts
-import { DatabaseSinkStateEntity, DatabaseSinkMigration } from "useful-typescript-functions"
+import { DatabaseSinkStateEntity, DatabaseSinkStateMigration } from "useful-typescript-functions"
 
 const ormConfig = {
   entities: [__dirname + "/**/*Entity.ts", DatabaseSinkStateEntity],
-  migrations:[__dirname + "/migrations/**/*{.ts,.js}", DatabaseSinkMigration]
+  migrations:[__dirname + "/migrations/**/*{.ts,.js}", DatabaseSinkStateMigration]
   ...
 }
 ```
