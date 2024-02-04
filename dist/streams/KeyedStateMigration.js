@@ -7,7 +7,7 @@ class KeyedStateMigration {
       "id" text NOT NULL,
       "key" text NOT NULL,
       "state" text NOT NULL,
-      CONSTRAINT "PK_state_id_key" PRIMARY KEY ("id", "key")
+      CONSTRAINT "PK_keyedstate_id_key" PRIMARY KEY ("id", "key")
     )`);
     }
     async down(queryRunner) {
