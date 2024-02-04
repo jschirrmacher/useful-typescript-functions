@@ -1,16 +1,21 @@
-import { MigrationInterface, QueryRunner } from "typeorm"
+import { MigrationInterface, QueryRunner, Table } from "typeorm"
 
 export class KeyedStateMigration implements MigrationInterface {
   public async up(queryRunner: QueryRunner) {
-    await queryRunner.query(`CREATE TABLE "keyedstate" (
-      "id" text NOT NULL,
-      "key" text NOT NULL,
-      "state" text NOT NULL,
-      CONSTRAINT "PK_keyedstate_id_key" PRIMARY KEY ("id", "key")
-    )`)
+    await queryRunner.createTable(
+      new Table({
+        name: "keyedstate",
+        columns: [
+          { name: "id", type: "text", isNullable: false, isPrimary: true },
+          { name: "key", type: "text", isNullable: false, isPrimary: true },
+          { name: "state", type: "text", isNullable: false },
+        ],
+      }),
+      true,
+    )
   }
 
   public async down(queryRunner: QueryRunner) {
-    await queryRunner.query(`DROP TABLE "keyedstate"`)
+    await queryRunner.dropTable("keyedstate")
   }
 }

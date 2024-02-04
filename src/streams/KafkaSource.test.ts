@@ -45,6 +45,7 @@ describe("KafkaSource", async () => {
   })
 
   afterAll(async () => {
+    vi.useRealTimers()
     vi.restoreAllMocks()
     expect(logger).toLogAsExpected()
   })
@@ -81,5 +82,34 @@ describe("KafkaSource", async () => {
     await source.run()
     messageHandler({ partition: 4, message: { value: '"test-message"' } })
     expect(offsetProvider.setOffset).toBeCalledWith(0, "4711")
+  })
+
+  it("should resolve after headstart time", async () => {
+    vi.useFakeTimers({})
+    const source = await createKafkaSource(kafka, "test-group", "test-topic", offsetProvider)
+    let resolved = false
+    source.runWithHeadstart(100, vi.fn()).finally(() => resolved = true)
+    source.stream.emit("data", { test: 42 }) // setup initial timer
+    expect(resolved).toBe(false)
+    vi.advanceTimersByTime(110)
+    await Promise.resolve()
+    expect(resolved).toBe(true)
+  })
+
+  it("should advance the headstart timer if an event arrives", async () => {
+    vi.useFakeTimers({})
+    const source = await createKafkaSource(kafka, "test-group", "test-topic", offsetProvider)
+    let resolved = false
+    source.runWithHeadstart(100, vi.fn()).finally(() => resolved = true)
+    source.stream.emit("data", { test: 42 }) // setup initial timer
+    vi.advanceTimersByTime(50)
+    source.stream.emit("data", { test: 43 }) // send another event to advance timer
+    expect(resolved).toBe(false)
+    vi.advanceTimersByTime(60)
+    await Promise.resolve()
+    expect(resolved).toBe(false)
+    vi.advanceTimersByTime(50)
+    await Promise.resolve()
+    expect(resolved).toBe(true)
   })
 })
