@@ -1,0 +1,1 @@
+{"version":3,"file":"KeyedStateMigration.js","sourceRoot":"","sources":["../../src/streams/KeyedStateMigration.ts"],"names":[],"mappings":";;;AAEA,MAAa,mBAAmB;IACvB,KAAK,CAAC,EAAE,CAAC,WAAwB;QACtC,MAAM,WAAW,CAAC,KAAK,CAAC;;;;;MAKtB,CAAC,CAAA;IACL,CAAC;IAEM,KAAK,CAAC,IAAI,CAAC,WAAwB;QACxC,MAAM,WAAW,CAAC,KAAK,CAAC,yBAAyB,CAAC,CAAA;IACpD,CAAC;CACF;AAbD,kDAaC"}

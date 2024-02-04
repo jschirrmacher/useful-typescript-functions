@@ -3,9 +3,9 @@ import { createDatabaseSink } from "./DatabaseSink.js"
 import { DataSource, Repository } from "typeorm"
 import { createCSVSource } from "./CSVSource.js"
 import { Readable } from "stream"
-import { DatabaseSinkStateEntity } from "./DatabaseSinkStateEntity.js"
+import { KeyedStateEntity } from "./KeyedStateEntity.js"
 
-function keyFunc(test: DatabaseSinkStateEntity) {
+function keyFunc(test: KeyedStateEntity) {
   return { id: test.id }
 }
 
@@ -31,16 +31,12 @@ describe("DatabaseSink", () => {
   })
 })
 
-async function runPipeline(
-  data: string,
-  repository: Repository<DatabaseSinkStateEntity>,
-  append = false,
-) {
+async function runPipeline(data: string, repository: Repository<KeyedStateEntity>, append = false) {
   await new Promise((resolve, reject) =>
     createCSVSource({ readStream: Readable.from(data) })
       .run()
       .stream.pipe(
-        createDatabaseSink(createDataSource(repository), DatabaseSinkStateEntity, keyFunc, append),
+        createDatabaseSink(createDataSource(repository), KeyedStateEntity, keyFunc, append),
       )
       .on("close", () => resolve(undefined))
       .on("error", reject),
@@ -51,10 +47,10 @@ function createRepository(affected: number) {
   return {
     insert: vi.fn(),
     update: vi.fn().mockResolvedValue({ affected }),
-  } as unknown as Repository<DatabaseSinkStateEntity>
+  } as unknown as Repository<KeyedStateEntity>
 }
 
-function createDataSource(repository: Repository<DatabaseSinkStateEntity>) {
+function createDataSource(repository: Repository<KeyedStateEntity>) {
   return {
     getRepository: vi.fn(() => repository),
   } as unknown as DataSource

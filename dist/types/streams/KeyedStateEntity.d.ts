@@ -1,5 +1,5 @@
 import { ObjectLiteral } from "typeorm";
-export declare class DatabaseSinkStateEntity implements ObjectLiteral {
+export declare class KeyedStateEntity implements ObjectLiteral {
     id: string;
     key: string;
     state: string;

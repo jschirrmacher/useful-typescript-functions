@@ -1,7 +1,7 @@
 import { Column, Entity, ObjectLiteral } from "typeorm"
 
-@Entity({ name: "dbsinkstate" })
-export class DatabaseSinkStateEntity implements ObjectLiteral {
+@Entity({ name: "keyedstate" })
+export class KeyedStateEntity implements ObjectLiteral {
   @Column({ type: "text", primary: true })
   id!: string
 

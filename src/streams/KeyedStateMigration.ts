@@ -1,8 +1,8 @@
 import { MigrationInterface, QueryRunner } from "typeorm"
 
-export class DatabaseSinkStateMigration implements MigrationInterface {
+export class KeyedStateMigration implements MigrationInterface {
   public async up(queryRunner: QueryRunner) {
-    await queryRunner.query(`CREATE TABLE "dbsinkstate" (
+    await queryRunner.query(`CREATE TABLE "keyedstate" (
       "id" text NOT NULL,
       "key" text NOT NULL,
       "state" text NOT NULL,
@@ -11,6 +11,6 @@ export class DatabaseSinkStateMigration implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner) {
-    await queryRunner.query(`DROP TABLE "dbsinkstate"`)
+    await queryRunner.query(`DROP TABLE "keyedstate"`)
   }
 }

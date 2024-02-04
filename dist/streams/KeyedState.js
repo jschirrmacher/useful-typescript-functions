@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.saveAllCheckpoints = exports.createState = void 0;
-const DatabaseSinkStateEntity_js_1 = require("./DatabaseSinkStateEntity.js");
+const KeyedStateEntity_js_1 = require("./KeyedStateEntity.js");
 const states = [];
 async function createState(id, dataSource, keyFunc, withoutCheckpoint = false, logger = console) {
-    const stateRepository = dataSource.getRepository(DatabaseSinkStateEntity_js_1.DatabaseSinkStateEntity);
+    const stateRepository = dataSource.getRepository(KeyedStateEntity_js_1.KeyedStateEntity);
     let timer;
     let state = {};
     let offsets;
@@ -72,11 +72,11 @@ async function createState(id, dataSource, keyFunc, withoutCheckpoint = false, l
             return; // Don't checkpoint if there are no offsets yet or if there are no changes
         }
         await stateRepository.manager.transaction(async (em) => {
-            const entities = Object.entries(state).map(([key, state]) => new DatabaseSinkStateEntity_js_1.DatabaseSinkStateEntity(id, key, JSON.stringify(state)));
-            const offsetsEntity = new DatabaseSinkStateEntity_js_1.DatabaseSinkStateEntity(id, "__offsets", JSON.stringify(offsets));
-            await em.delete(DatabaseSinkStateEntity_js_1.DatabaseSinkStateEntity, { id });
-            await em.insert(DatabaseSinkStateEntity_js_1.DatabaseSinkStateEntity, entities);
-            await em.insert(DatabaseSinkStateEntity_js_1.DatabaseSinkStateEntity, offsetsEntity);
+            const entities = Object.entries(state).map(([key, state]) => new KeyedStateEntity_js_1.KeyedStateEntity(id, key, JSON.stringify(state)));
+            const offsetsEntity = new KeyedStateEntity_js_1.KeyedStateEntity(id, "__offsets", JSON.stringify(offsets));
+            await em.delete(KeyedStateEntity_js_1.KeyedStateEntity, { id });
+            await em.insert(KeyedStateEntity_js_1.KeyedStateEntity, entities);
+            await em.insert(KeyedStateEntity_js_1.KeyedStateEntity, offsetsEntity);
             logger.info(`Created state checkpoint for ${id} with offsets ${offsets}`);
         });
         dirty = false;

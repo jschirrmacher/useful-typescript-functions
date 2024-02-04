@@ -10,8 +10,8 @@ export * from "./streams/KafkaSource.js";
 export * from "./streams/KeyedState.js";
 export * from "./streams/LineTransform.js";
 export * from "./streams/OffsetProvider.js";
-export * from "./streams/DatabaseSinkStateEntity.js";
-export * from "./streams/DatabaseSinkStateMigration.js";
+export * from "./streams/KeyedStateEntity.js";
+export * from "./streams/KeyedStateMigration.js";
 /**
  * @deprecated use the several sink modules instead.
  */

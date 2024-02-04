@@ -1,1 +1,0 @@
-{"version":3,"file":"DatabaseSinkStateMigration.js","sourceRoot":"","sources":["../../src/streams/DatabaseSinkStateMigration.ts"],"names":[],"mappings":";;;AAEA,MAAa,0BAA0B;IAC9B,KAAK,CAAC,EAAE,CAAC,WAAwB;QACtC,MAAM,WAAW,CAAC,KAAK,CAAC;;;;;MAKtB,CAAC,CAAA;IACL,CAAC;IAEM,KAAK,CAAC,IAAI,CAAC,WAAwB;QACxC,MAAM,WAAW,CAAC,KAAK,CAAC,0BAA0B,CAAC,CAAA;IACrD,CAAC;CACF;AAbD,gEAaC"}

@@ -204,16 +204,23 @@ The boolean parameter `withoutCheckpoint` (`true` in this example) specifies if 
 
 The `KeyedState` implements the `OffsetProvider` interface and can directly be used when creating the `KafkaSource`.
 
-To use `KeyedState`, you need to include the `DatabaseSingStateEntity` in your list of entites. Therefore, import it in your orm configuration and add it to the array defining your entites.
-
-The same goes with the migration to create the required database table for the entity.
+To use `KeyedState`, you need to include the `KeyedStateEntity` in your list of entites. Therefore, import it in your orm configuration and add it to the array defining your entites.
 
 ```ts
-import { DatabaseSinkStateEntity, DatabaseSinkStateMigration } from "useful-typescript-functions"
+import { KeyedStateEntity } from "useful-typescript-functions"
 
 const ormConfig = {
-  entities: [__dirname + "/**/*Entity.ts", DatabaseSinkStateEntity],
-  migrations:[__dirname + "/migrations/**/*{.ts,.js}", DatabaseSinkStateMigration]
+  entities: [__dirname + "/**/*Entity.ts", KeyedStateEntity],
   ...
 }
 ```
+
+You also need a migration to create the database table to hold the `KeyedStateEntity`. Regrettably, TypeORM needs the migration class with a timestamp in its name, and this timestamp needs to be in the correct order of other migrations. To achieve this, you need to create an own migration class extending the imported `KeyedStateMigration` class, but fulfilling the timestamp requirement:
+
+```ts
+import { KeyedStateMigration } from "useful-typescript-functions"
+
+export class KeyedStateMigration1704859886234 extends KeyedStateMigration {}
+```
+
+You don't need any script here, the parent class already brings all required methods. The own migration class just needs to exist.
