@@ -19,7 +19,7 @@ export interface ServerConfiguration {
   readableResponses?: boolean
   logRequests?: boolean
   fileUpload?: { maxSize: number }
-  staticFiles?: string
+  staticFiles?: string | string[]
 }
 
 export class RestError extends Error {

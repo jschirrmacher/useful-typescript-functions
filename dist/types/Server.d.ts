@@ -23,7 +23,7 @@ export interface ServerConfiguration {
     fileUpload?: {
         maxSize: number;
     };
-    staticFiles?: string;
+    staticFiles?: string | string[];
 }
 export declare class RestError extends Error {
     status: number;
