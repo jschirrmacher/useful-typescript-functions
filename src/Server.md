@@ -67,6 +67,8 @@ Set the `logRequests` parameter of `setupServer()` if you want requests to be lo
 
 Set `fileUpload` parameter of `setupServer()` to a configuration object to enable file uploads. The configuration currently only allow to set the maximum `maxSize` of an upload. The size is specified in Bytes.
 
+You need to add `express-fileupload` as a dependency, if you want to use file uploads.
+
 ## Upgrading from version 2
 
 The following changes need to be done to upgrade from version 2 of `useful-typescript-functions`:
