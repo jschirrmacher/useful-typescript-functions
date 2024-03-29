@@ -27,7 +27,7 @@ await setupServer({
   readableResponses // a boolean flag to create more readable JSON responses
   logRequests   // set to a log level to enable request logging. If not set, no requests are logged
   fileUpload    // set a max file size to enable file uploads. If not set, files cannot be uploaded
-  staticFiles   // set a path to be served as static files
+  staticFiles   // set a path or a list of paths to be served as static files
 })
 ```
 
@@ -57,9 +57,11 @@ If you throw a `Redirection`, a `Location` header will be sent with the URL spec
 
 If you set a file path to `staticFiles` parameter of `setupServer()`, the server will serve files from there. If the folder contains an `index.html` file, it will be served if the requested file does not exist. This helps creating single page applications aware of deep links.
 
+It is also possible to use an array of paths, if you need multiple folders to be served statically.
+
 ### Logging requests
 
-Set the `logRequests` parameter of `setupServer()` if you want requests to be logged.
+Set the `logRequests` parameter of `setupServer()` if you want requests to be logged. The response code will also be logged.
 
 ### Use file uploads
 

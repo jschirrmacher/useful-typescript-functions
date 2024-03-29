@@ -47,10 +47,12 @@ export async function setupServer(options?: Partial<ServerConfiguration>) {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const errorHandler = (error: Error, req: Request, res: Response, _next: NextFunction) => {
-    if (error instanceof RestError && error.status === 404) {
-      config.logger.error(`404 Not found: ${req.method.toUpperCase()} ${req.path}`)
-    } else {
-      config.logger.error(error)
+    if (!config.logRequests) {
+      if (error instanceof RestError && error.status === 404) {
+        config.logger.error(`404 Not found: ${req.method.toUpperCase()} ${req.path}`)
+      } else {
+        config.logger.error(error)
+      }
     }
     res.status(error instanceof RestError ? error.status : 500).json({ error: error.message })
   }
@@ -86,7 +88,8 @@ export async function setupServer(options?: Partial<ServerConfiguration>) {
     }),
   )
   if (config.staticFiles) {
-    config.app.use(await staticFiles(config.staticFiles))
+    const paths = Array.isArray(config.staticFiles) ? config.staticFiles : [config.staticFiles]
+    config.app.use(await staticFiles(paths))
   }
   config.app.use((req, res, next) => next(new RestError(404, "path not found")))
   config.app.use(errorHandler)
@@ -104,21 +107,23 @@ export function stopServer(config: ServerConfiguration) {
   config.server?.close()
 }
 
-async function staticFiles(distPath: string) {
+async function staticFiles(distPaths: string[]) {
   const express = (await import("express")).default
   const staticFilesMiddleware = express.Router()
 
-  if (existsSync(distPath)) {
-    const indexPage = readFileSync(distPath + "/index.html").toString()
-    staticFilesMiddleware.use(express.static(distPath, { fallthrough: true }))
-    staticFilesMiddleware.use((req, res, next) => {
-      if (req.method === "GET" && !req.header("accept")?.match(/json/)) {
-        res.send(indexPage)
-      } else {
-        next()
-      }
+  distPaths
+    .filter(distPath => existsSync(distPath))
+    .forEach(distPath => {
+      const indexPage = readFileSync(distPath + "/index.html").toString()
+      staticFilesMiddleware.use(express.static(distPath, { fallthrough: true }))
+      staticFilesMiddleware.use((req, res, next) => {
+        if (req.method === "GET" && !req.header("accept")?.match(/json/)) {
+          res.send(indexPage)
+        } else {
+          next()
+        }
+      })
     })
-  }
   return staticFilesMiddleware as RequestHandler
 }
 
@@ -127,7 +132,9 @@ async function requestLogger(logger: Logger) {
   const loggingMiddleware = express.Router()
 
   loggingMiddleware.use((req, res, next) => {
-    logger.debug(`${req.method} ${req.path}`)
+    res.on("finish", () => {
+      logger.debug(`${res.statusCode}: ${req.method.toUpperCase()} ${req.path}`)
+    })
     next()
   })
   return loggingMiddleware as RequestHandler

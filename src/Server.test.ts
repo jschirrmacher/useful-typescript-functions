@@ -51,8 +51,14 @@ describe("Server", () => {
 
     describe("requestLogger", () => {
       it("should log requests in debug mode", async () => {
-        logger.expect({ level: "debug", message: "GET /" })
+        logger.expect({ level: "debug", message: "200: GET /" })
         config = await setupServer({ logger, routers: [textMiddleware], logRequests: true })
+        await request(config.app).get("/")
+      })
+
+      it("should log response codes of unknown routes", async () => {
+        logger.expect({ level: "debug", message: "404: GET /" })
+        config = await setupServer({ logger, routers: [], logRequests: true })
         await request(config.app).get("/")
       })
 
@@ -100,7 +106,7 @@ describe("Server", () => {
       })
     })
 
-    it("should report a 404 error for unknown routes", async () => {
+    it("should report a 404 error for unknown routes even if requests are not logged", async () => {
       config = await setupServer({ logger })
       request(config.app).get("/non-existing-file").expect(404)
     })
