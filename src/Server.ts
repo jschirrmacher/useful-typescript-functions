@@ -114,15 +114,18 @@ async function staticFiles(distPaths: string[]) {
   distPaths
     .filter(distPath => existsSync(distPath))
     .forEach(distPath => {
-      const indexPage = readFileSync(distPath + "/index.html").toString()
       staticFilesMiddleware.use(express.static(distPath, { fallthrough: true }))
-      staticFilesMiddleware.use((req, res, next) => {
-        if (req.method === "GET" && !req.header("accept")?.match(/json/)) {
-          res.send(indexPage)
-        } else {
-          next()
-        }
-      })
+      const indexFilePath = distPath + "/index.html"
+      if (existsSync(indexFilePath)) {
+        const indexPage = readFileSync(indexFilePath).toString()
+        staticFilesMiddleware.use((req, res, next) => {
+          if (req.method === "GET" && !req.header("accept")?.match(/json/)) {
+            res.send(indexPage)
+          } else {
+            next()
+          }
+        })
+      }
     })
   return staticFilesMiddleware as RequestHandler
 }

@@ -84,6 +84,13 @@ describe("Server", () => {
         expect(response.status).toBe(200)
         expect(response.text).toEqual(`this file exists only for test purposes.\n`)
       })
+
+      it("should work without an index.html file inside the static files folder", async () => {
+        logger.expect({ level: "debug", message: "404: GET /non-existing-file" })
+        config = await setupServer({ logger, logRequests: true,  staticFiles: __dirname + "/streams" })
+        const response = await request(config.app).get("/non-existing-file")
+        expect(response.status).toBe(404)
+      })
     })
 
     describe("fileUpload", () => {

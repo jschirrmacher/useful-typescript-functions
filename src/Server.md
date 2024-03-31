@@ -57,7 +57,7 @@ If you throw a `Redirection`, a `Location` header will be sent with the URL spec
 
 If you set a file path to `staticFiles` parameter of `setupServer()`, the server will serve files from there. If the folder contains an `index.html` file, it will be served if the requested file does not exist. This helps creating single page applications aware of deep links.
 
-It is also possible to use an array of paths, if you need multiple folders to be served statically.
+It is also possible to use an array of paths, if you need multiple folders to be served statically. Remember that the first `index.html` file will be served, when no other matching file is found. If more than one of the specified folders contain such a file, it will be served, even if some other folders contain files that match the requested file name. Best would be, if there is only one `index.html` file in the static files folders, and this folder is specified as the last one in the array.
 
 ### Logging requests
 

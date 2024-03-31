@@ -88,16 +88,19 @@ async function staticFiles(distPaths) {
     distPaths
         .filter(distPath => (0, fs_1.existsSync)(distPath))
         .forEach(distPath => {
-        const indexPage = (0, fs_1.readFileSync)(distPath + "/index.html").toString();
         staticFilesMiddleware.use(express.static(distPath, { fallthrough: true }));
-        staticFilesMiddleware.use((req, res, next) => {
-            if (req.method === "GET" && !req.header("accept")?.match(/json/)) {
-                res.send(indexPage);
-            }
-            else {
-                next();
-            }
-        });
+        const indexFilePath = distPath + "/index.html";
+        if ((0, fs_1.existsSync)(indexFilePath)) {
+            const indexPage = (0, fs_1.readFileSync)(indexFilePath).toString();
+            staticFilesMiddleware.use((req, res, next) => {
+                if (req.method === "GET" && !req.header("accept")?.match(/json/)) {
+                    res.send(indexPage);
+                }
+                else {
+                    next();
+                }
+            });
+        }
     });
     return staticFilesMiddleware;
 }
