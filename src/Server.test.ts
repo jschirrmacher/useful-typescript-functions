@@ -57,6 +57,7 @@ describe("Server", () => {
       })
 
       it("should log response codes of unknown routes", async () => {
+        logger.expect({ level: "error", message: "path not found" })
         logger.expect({ level: "debug", message: "404: GET /" })
         config = await setupServer({ logger, routers: [], logRequests: true })
         await request(config.app).get("/")
@@ -87,6 +88,7 @@ describe("Server", () => {
 
       it("should work without an index.html file inside the static files folder", async () => {
         logger.expect({ level: "debug", message: "404: GET /non-existing-file" })
+        logger.expect({ level: "error", message: "path not found" })
         config = await setupServer({ logger, logRequests: true,  staticFiles: __dirname + "/streams" })
         const response = await request(config.app).get("/non-existing-file")
         expect(response.status).toBe(404)
