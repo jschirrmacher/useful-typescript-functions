@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.defineRouter = exports.stopServer = exports.setupServer = exports.Redirection = exports.RestError = exports.restMethod = void 0;
 const fs_1 = require("fs");
 const http_1 = require("http");
+const path_1 = require("path");
 exports.restMethod = ["get", "post", "put", "patch", "delete"];
 class RestError extends Error {
     status;
@@ -26,13 +27,11 @@ async function setupServer(options) {
     const express = (await import("express")).default;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const errorHandler = (error, req, res, _next) => {
-        if (!config.logRequests) {
-            if (error instanceof RestError && error.status === 404) {
-                config.logger.error(`404 Not found: ${req.method.toUpperCase()} ${req.path}`);
-            }
-            else {
-                config.logger.error(error);
-            }
+        if (!config.logRequests && error instanceof RestError && error.status === 404) {
+            config.logger.error(`404 Not found: ${req.method.toUpperCase()} ${req.path}`);
+        }
+        else {
+            config.logger.error(error);
         }
         res.status(error instanceof RestError ? error.status : 500).json({ error: error.message });
     };
@@ -89,12 +88,11 @@ async function staticFiles(distPaths) {
         .filter(distPath => (0, fs_1.existsSync)(distPath))
         .forEach(distPath => {
         staticFilesMiddleware.use(express.static(distPath, { fallthrough: true }));
-        const indexFilePath = distPath + "/index.html";
+        const indexFilePath = (0, path_1.join)(distPath, "index.html");
         if ((0, fs_1.existsSync)(indexFilePath)) {
-            const indexPage = (0, fs_1.readFileSync)(indexFilePath).toString();
             staticFilesMiddleware.use((req, res, next) => {
                 if (req.method === "GET" && !req.header("accept")?.match(/json/)) {
-                    res.send(indexPage);
+                    res.sendFile(indexFilePath);
                 }
                 else {
                     next();

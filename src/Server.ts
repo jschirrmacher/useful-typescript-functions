@@ -1,6 +1,7 @@
 import type { Application, NextFunction, Request, Response } from "express"
-import { existsSync, readFileSync } from "fs"
+import { existsSync } from "fs"
 import { createServer, Server } from "http"
+import { join } from "path"
 
 type Logger = Pick<typeof console, "debug" | "info" | "error">
 export const restMethod = ["get", "post", "put", "patch", "delete"] as const
@@ -47,12 +48,10 @@ export async function setupServer(options?: Partial<ServerConfiguration>) {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const errorHandler = (error: Error, req: Request, res: Response, _next: NextFunction) => {
-    if (!config.logRequests) {
-      if (error instanceof RestError && error.status === 404) {
-        config.logger.error(`404 Not found: ${req.method.toUpperCase()} ${req.path}`)
-      } else {
-        config.logger.error(error)
-      }
+    if (!config.logRequests && error instanceof RestError && error.status === 404) {
+      config.logger.error(`404 Not found: ${req.method.toUpperCase()} ${req.path}`)
+    } else {
+      config.logger.error(error)
     }
     res.status(error instanceof RestError ? error.status : 500).json({ error: error.message })
   }
@@ -115,12 +114,11 @@ async function staticFiles(distPaths: string[]) {
     .filter(distPath => existsSync(distPath))
     .forEach(distPath => {
       staticFilesMiddleware.use(express.static(distPath, { fallthrough: true }))
-      const indexFilePath = distPath + "/index.html"
+      const indexFilePath = join(distPath, "index.html")
       if (existsSync(indexFilePath)) {
-        const indexPage = readFileSync(indexFilePath).toString()
         staticFilesMiddleware.use((req, res, next) => {
           if (req.method === "GET" && !req.header("accept")?.match(/json/)) {
-            res.send(indexPage)
+            res.sendFile(indexFilePath)
           } else {
             next()
           }
