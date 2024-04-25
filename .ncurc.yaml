@@ -1,0 +1,2 @@
+reject:
+  - eslint # https://github.com/typescript-eslint/typescript-eslint/issues/8211
