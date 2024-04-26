@@ -12,7 +12,7 @@ import {
   stopServer,
 } from "./Server.js"
 import { Logger } from "./Logger.js"
-import { FileArray, UploadedFile } from "express-fileupload"
+import { FileArray } from "express-fileupload"
 
 const logger = Logger()
 
@@ -74,7 +74,7 @@ describe("Server", () => {
         config = await setupServer({ logger, staticFiles: __dirname })
         const response = await request(config.app).get(__filename.replace(__dirname, ""))
         expect(response.status).toBe(200)
-        expect(response.body.toString().split("\n")).toContain(
+        expect((response.body as { toString(): string }).toString().split("\n")).toContain(
           `// this comment is here for test purposes`,
         )
       })
@@ -89,7 +89,11 @@ describe("Server", () => {
       it("should work without an index.html file inside the static files folder", async () => {
         logger.expect({ level: "debug", message: "404: GET /non-existing-file" })
         logger.expect({ level: "error", message: "path not found" })
-        config = await setupServer({ logger, logRequests: true,  staticFiles: __dirname + "/streams" })
+        config = await setupServer({
+          logger,
+          logRequests: true,
+          staticFiles: __dirname + "/streams",
+        })
         const response = await request(config.app).get("/non-existing-file")
         expect(response.status).toBe(404)
       })
@@ -97,27 +101,20 @@ describe("Server", () => {
 
     describe("fileUpload", () => {
       it("should accept a file as upload", async () => {
-        const upload = new Promise<FileArray>(async resolve => {
-          const handler = (req: Request) => {
-            resolve(req.files as FileArray)
-            return "ok"
+        type FileResult = {
+          file: {
+            data: {
+              data: Buffer
+            }
           }
-          const routers = [defineRouter().post("/uploads", handler)]
-          config = await setupServer({ logger, fileUpload: { maxSize: 100000 }, routers })
-          await request(config.app).post("/uploads").attach("file", __filename)
-        })
-        const files = await upload
-        expect(files).toHaveProperty("file")
-        const file = files.file as UploadedFile
-        expect(file.data.toString().split("\n")).toContain(
-          `// this comment is here for test purposes`,
-        )
-      })
-    })
+        }
 
-    it("should report a 404 error for unknown routes even if requests are not logged", async () => {
-      config = await setupServer({ logger })
-      request(config.app).get("/non-existing-file").expect(404)
+        const routers = [defineRouter().post("/uploads", (req: Request) => req.files as FileArray)]
+        config = await setupServer({ logger, fileUpload: { maxSize: 100000 }, routers })
+        const result = await request(config.app).post("/uploads").attach("file", __filename)
+        const file = Buffer.from((result.body as FileResult).file.data.data).toString()
+        expect(file.split("\n")).toContain(`// this comment is here for test purposes`)
+      })
     })
 
     it("should not log complete error messages with stack on 404 errors", async () => {
@@ -183,8 +180,8 @@ describe("Server", () => {
         expectServerStartLog()
       })
 
-      afterEach(async () => {
-        config && ( stopServer(config))
+      afterEach(() => {
+        config && stopServer(config)
         config = undefined
         expect(logger).toLogAsExpected()
       })

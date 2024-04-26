@@ -177,7 +177,7 @@ function tryCatch(handler: RequestHandler) {
 export function defineRouter(basePath?: string, name?: string) {
   const routes = [] as { method: RestMethod; path: string; handlers: RequestHandler[] }[]
 
-  const definition: RouterDefinition = Object.assign(
+  const definition = Object.assign(
     {
       async build() {
         const { Router } = (await import("express")).default
@@ -187,7 +187,8 @@ export function defineRouter(basePath?: string, name?: string) {
         }
 
         routes.forEach(route => {
-          router[route.method]((basePath || "") + route.path, ...route.handlers.map(tryCatch))
+          const handlers: RequestHandler[] = route.handlers.map(tryCatch)
+          router[route.method]((basePath || "") + route.path, ...handlers)
         })
 
         return router
@@ -199,7 +200,7 @@ export function defineRouter(basePath?: string, name?: string) {
         return definition
       },
     })),
-  )
+  ) as RouterDefinition
 
   return definition
 }

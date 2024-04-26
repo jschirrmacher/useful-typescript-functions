@@ -50,7 +50,7 @@ export function Mailer(
     config?.smtp && nodeMailer.createTransport(config.smtp)
 
   return {
-    async send(to: string, template: MailTemplate, variables: Variables) {
+    send: async (to: string, template: MailTemplate, variables: Variables) => {
       const from = (variables.from as string) || emailFrom
       const subject = render(template.subject, { baseUrl, ...variables })
       const logPrefix = `mailto(${to}), ${subject}:`
@@ -60,7 +60,7 @@ export function Mailer(
           transporter.sendMail({ from, to, subject, html }, err => resolve({ err })),
         )
         if (err) {
-          logger.warn(`${logPrefix} ${err}`)
+          logger.warn(`${logPrefix} ${err.message}`)
           throw new Error("sendMail failed")
         }
         logger.info(`${logPrefix} ok`)

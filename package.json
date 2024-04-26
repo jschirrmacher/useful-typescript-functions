@@ -59,8 +59,6 @@
     "@types/nodemailer": "^6.4.14",
     "@types/supertest": "6.0.2",
     "@types/yamljs": "0.2.34",
-    "@typescript-eslint/eslint-plugin": "^7.7.1",
-    "@typescript-eslint/parser": "^7.7.1",
     "@vitest/coverage-v8": "1.5.2",
     "eslint": "8.57.0",
     "eslint-config-prettier": "^9.1.0",
@@ -73,6 +71,7 @@
     "supertest": "7.0.0",
     "ts-node": "10.9.2",
     "typescript": "5.4.5",
+    "typescript-eslint": "7.7.1",
     "vitest": "1.5.2"
   },
   "peerDependencies": {

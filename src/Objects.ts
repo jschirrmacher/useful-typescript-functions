@@ -14,7 +14,7 @@ export function arrayize(obj: BaseType | StringIndexableObject): Arrayized[] {
   const concat = (...parts: string[]) => parts.filter(x => x).join(".")
 
   if (obj !== null && typeof obj === "object" && !(obj instanceof Date)) {
-    return Object.entries(obj as StringIndexableObject).flatMap(([key, value]) => {
+    return Object.entries(obj).flatMap(([key, value]) => {
       if (value === null) {
         return [[key, value]]
       }
@@ -82,7 +82,7 @@ export function diff(
     .filter(p => values1[p] !== values2[p])
     .map(p => valueMapping[include](p))
 
-  return inflate(Object.fromEntries(changes))
+  return inflate(Object.fromEntries(changes) as StringIndexableObject)
 }
 
 /**
@@ -135,7 +135,7 @@ export function getMutation<T>(obj: T, attributes: readonly (keyof T)[], changes
   const actualChanges = attributes
     .filter(attribute => changes[attribute] !== undefined && obj[attribute] !== changes[attribute])
     .map(attribute => ({ [attribute]: changes[attribute] }))
-  return Object.assign({}, ...actualChanges)
+  return Object.assign({}, ...actualChanges) as T
 }
 
 /**
@@ -239,5 +239,5 @@ export function createObject<T extends StringIndexableObject>(
     },
   }
 
-  return Object.setPrototypeOf(data, base)
+  return Object.setPrototypeOf(data, base) as T & typeof base
 }

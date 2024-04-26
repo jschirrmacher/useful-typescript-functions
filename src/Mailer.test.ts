@@ -34,7 +34,7 @@ function setup(sendResult: "none" | "ok" | "error" = "ok", config: MailerConfig 
   const sendMail = vi
     .fn()
     .mockImplementation((data: object, callback: (err: unknown, info: string) => void) => {
-      callback(sendMailErr, sendResult)
+      callback(sendMailErr ? { message: sendMailErr } : null, sendResult)
     })
 
   const createTransport = vi.fn().mockReturnValue({ sendMail })
@@ -79,7 +79,7 @@ describe("Mailer", () => {
     )
   })
 
-  it("should use the configuration from the config", async () => {
+  it("should use the configuration from the config", () => {
     const { createTransport } = setup("none")
     expect(createTransport).toBeCalledWith({
       auth: {
@@ -91,9 +91,9 @@ describe("Mailer", () => {
     })
   })
 
-  it("should log errors", async () => {
+  it("should log errors", () => {
     const { send } = setup("error")
-    expect(send(john, template, variables)).rejects.toEqual(new Error("sendMail failed"))
+    void expect(send(john, template, variables)).rejects.toEqual(new Error("sendMail failed"))
   })
 
   it("should suppress email sending if smtp config is missing", async () => {

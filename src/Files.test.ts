@@ -50,8 +50,8 @@ describe("Files", () => {
     const fs = mockFs()
     const { mkdirp } = Files({ fs })
 
-    it("should call fs.mkdir() with 'recursive=true'", () => {
-      mkdirp("test/abc")
+    it("should call fs.mkdir() with 'recursive=true'", async () => {
+      await mkdirp("test/abc")
       expect(fs.mkdir).toBeCalledWith("test/abc", expect.objectContaining({ recursive: true }))
     })
   })
@@ -117,7 +117,7 @@ describe("Files", () => {
   })
 
   describe("getPreviewFolder()", () => {
-    it("should return a folder matching the options", async () => {
+    it("should return a folder matching the options", () => {
       expect(getPreviewFolder({ width: 20 })).toEqual("preview_20")
       expect(getPreviewFolder({ height: 40 })).toEqual("preview_40")
       expect(getPreviewFolder({ width: 30, height: 40 })).toEqual("preview_40_30")
@@ -162,9 +162,9 @@ describe("Files", () => {
       })
     })
 
-    it("should throw an error if the file doesn't exist", async () => {
+    it("should throw an error if the file doesn't exist", () => {
       const { readYAML } = setupConfig()
-      expect(readYAML("other.yaml")).rejects.toEqual({ code: "ENOENT" })
+      void expect(readYAML("other.yaml")).rejects.toEqual({ code: "ENOENT" })
     })
   })
 
