@@ -1,1 +1,4 @@
 upgrade: true
+format: group,repo
+target: minor
+removeRange: true

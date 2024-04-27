@@ -1,6 +1,6 @@
 # Useful TypeScript Functions
 
-A dependency-free collection of useful functions for applications in TypeScript. (Actually, you need some peer libraries if you use some of the functions). Written in Typescript and works for CJS and ESM.
+A dependency-free collection of useful functions for applications in TypeScript. (Actually, you need some peer libraries if you use some of the functions). Written in Typescript.
 
 - [**Objects** for working with objects](src/Objects.md)
 - [**Functions** run asynchronous functions one after each other](src/Functions.md)
