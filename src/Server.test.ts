@@ -101,14 +101,7 @@ describe("Server", () => {
 
     describe("fileUpload", () => {
       it("should accept a file as upload", async () => {
-        type FileResult = {
-          file: {
-            data: {
-              data: Buffer
-            }
-          }
-        }
-
+        type FileResult = Record<string, Record<string, { data: Buffer }>>
         const routers = [defineRouter().post("/uploads", (req: Request) => req.files as FileArray)]
         config = await setupServer({ logger, fileUpload: { maxSize: 100000 }, routers })
         const result = await request(config.app).post("/uploads").attach("file", __filename)
