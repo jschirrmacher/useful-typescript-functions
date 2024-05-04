@@ -42,11 +42,19 @@ interface ExtendableExpect {
   extend(params: object): void
 }
 
+const logPrintLevel = {
+  error: ["error"],
+  warn: ["error", "warn"],
+  info: ["error", "warn", "info"],
+  debug: ["error", "warn", "info", "debug"],
+}
+
 export function Logger() {
   const options = {
     silent: false,
     globalData: {},
     transport: consoleTransport,
+    logLevel: "info" as LogLevel,
   }
 
   const entries: EntryStore = { expected: [], unexpected: [] }
@@ -94,7 +102,7 @@ export function Logger() {
     } else {
       entries.unexpected.push(entry)
     }
-    options.silent || options.transport(entry)
+    options.silent || (logPrintLevel[options.logLevel].includes(level) && options.transport(entry))
   }
 
   return {
@@ -104,6 +112,14 @@ export function Logger() {
     info: (data: string | object) => log("info", data),
     warn: (data: string | object) => log("warn", data),
     error: (data: string | object) => log("error", data),
+
+    setLogLevel(level: LogLevel) {
+      options.logLevel = level
+    },
+
+    setSilent(silent: boolean) {
+      options.silent = silent
+    },
 
     setTransport(transport: Transport) {
       options.transport = transport

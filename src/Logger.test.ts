@@ -1,5 +1,5 @@
-import { beforeEach, describe, it, expect } from "vitest"
-import { Logger } from "./Logger"
+import { beforeEach, describe, it, expect, vi } from "vitest"
+import { LogStruct, Logger, Transport } from "./Logger"
 import "./vitest"
 
 const logger = Logger()
@@ -7,6 +7,7 @@ const logger = Logger()
 describe("Logger", () => {
   beforeEach(() => {
     logger.runInTest(expect)
+    logger.setLogLevel("info")
   })
 
   it("should log the message if it is a string", () => {
@@ -51,6 +52,28 @@ describe("Logger", () => {
   it("should work with brackets in the expected message", () => {
     logger.expect({ level: "info", message: "text with (brackets)" })
     logger.info("text with (brackets)")
+    expect(logger).toLogAsExpected()
+  })
+
+  it("should suppress logs with lower log level", () => {
+    logger.expect({ level: "info", message: "This is only informative" })
+    logger.expect({ level: "error", message: "This should be logged" })
+    logger.setLogLevel("error")
+    logger.setSilent(false)
+    const transport = vi.fn()
+    logger.setTransport(transport as Transport)
+    logger.info("This is only informative")
+    logger.error("This should be logged")
+    expect(transport).toBeCalledTimes(1)
+    expect(transport.mock.calls).toEqual([
+      [expect.objectContaining({ level: "error", message: "This should be logged" })],
+    ])
+  })
+
+  it("should allow checking log output even if actual output is suppressed due to log level", () => {
+    logger.expect({ level: "info", message: "This is only informative" })
+    logger.setLogLevel("error")
+    logger.info("This is only informative")
     expect(logger).toLogAsExpected()
   })
 })

@@ -96,3 +96,18 @@ debug,another log output,{}
 As you see, the `level` field is automatically added due to the fact that you logged with `logger.info`.
 
 Instead of using a CSV transport, you can also use a JSONL transport by calling `createJSONLTransport()`, which can also be imported from `useful-typescript-functions`.
+
+## Set a log level to suppress some output
+
+The default `LogLevel` "info" will log anything that is either "info", "warn" or "error", but with `setLogLevel()` it can be set to any other level. For example, it could be set to "debug", so that every debug message will be actually logged, but also messages with all other log levels.
+
+With the following code, the information output will be suppressed:
+
+```ts
+import { Logger } from "useful-typescript-functions"
+
+const logger = Logger()
+logger.setLogLevel("error")
+
+logger.info("This is just informative")
+```
