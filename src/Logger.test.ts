@@ -1,5 +1,5 @@
 import { beforeEach, describe, it, expect, vi } from "vitest"
-import { LogStruct, Logger, Transport } from "./Logger"
+import { Logger, Transport } from "./Logger"
 import "./vitest"
 
 const logger = Logger()
