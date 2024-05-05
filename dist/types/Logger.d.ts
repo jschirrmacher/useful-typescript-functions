@@ -25,6 +25,8 @@ export declare function Logger(): {
     info: (data: string | object) => void;
     warn: (data: string | object) => void;
     error: (data: string | object) => void;
+    setLogLevel(level: LogLevel): void;
+    setSilent(silent: boolean): void;
     setTransport(transport: Transport): any;
     setGlobal(data: object): any;
     runInTest(expect: ExtendableExpect): any;

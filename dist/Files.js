@@ -21,18 +21,18 @@ exports.getPreviewFolder = getPreviewFolder;
 function Files({ sharp, fs } = {}) {
     const { mkdir, readFile, writeFile } = fs || promises_1.default;
     const files = {
-        async mkdirp(path) {
+        mkdirp: async (path) => {
             await mkdir(path, { recursive: true });
         },
-        async getProjectDir(envName, ...path) {
+        getProjectDir: async (envName, ...path) => {
             const resolved = process.env[envName] || (0, path_1.resolve)(process.cwd(), ...path);
             await files.mkdirp(resolved);
             return resolved;
         },
-        getDataUrl(mimetype, data) {
+        getDataUrl: (mimetype, data) => {
             return "data:" + mimetype + ";base64," + data.toString("base64");
         },
-        async getPreview(folder, name, mimetype, options) {
+        getPreview: async (folder, name, mimetype, options) => {
             const previewFolder = getPreviewFolder(options);
             await files.mkdirp((0, path_1.join)(folder, previewFolder));
             const previewFileName = (0, path_1.join)(folder, previewFolder, name);
@@ -48,7 +48,7 @@ function Files({ sharp, fs } = {}) {
                 return undefined;
             }
         },
-        async readJSON(fileWithPath) {
+        readJSON: async (fileWithPath) => {
             const content = await readFile(fileWithPath);
             return JSON.parse(content.toString(), (_, value) => {
                 if (typeof value === "string" && value.match(isoDatePattern)) {
@@ -57,14 +57,9 @@ function Files({ sharp, fs } = {}) {
                 return value;
             });
         },
-        async readYAML(fileWithPath) {
+        readYAML: async (fileWithPath) => {
             const yaml = (await import("yamljs")).default;
-            try {
-                return yaml.parse((await readFile(fileWithPath, { encoding: "utf-8" })).toString());
-            }
-            catch (error) {
-                throw error;
-            }
+            return yaml.parse((await readFile(fileWithPath, { encoding: "utf-8" })).toString());
         },
         /**
          * Read YAML configuration file.
@@ -73,7 +68,7 @@ function Files({ sharp, fs } = {}) {
          * @param withoutSecrets deletes a possibly existing `secrets` entry, defaults to true
          * @returns
          */
-        async readConfig(fileWithPath, withoutSecrets = true) {
+        readConfig: async (fileWithPath, withoutSecrets = true) => {
             try {
                 const config = await files.readYAML(fileWithPath);
                 if (withoutSecrets) {

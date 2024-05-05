@@ -157,7 +157,8 @@ function defineRouter(basePath, name) {
                 Object.defineProperty(router, "name", { value: name });
             }
             routes.forEach(route => {
-                router[route.method]((basePath || "") + route.path, ...route.handlers.map(tryCatch));
+                const handlers = route.handlers.map(tryCatch);
+                router[route.method]((basePath || "") + route.path, ...handlers);
             });
             return router;
         },

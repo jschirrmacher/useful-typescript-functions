@@ -17,11 +17,18 @@ function createJSONLTransport(path) {
     return createFileTransport((0, Streams_js_1.createJSONLSink)({ path }));
 }
 exports.createJSONLTransport = createJSONLTransport;
+const logPrintLevel = {
+    error: ["error"],
+    warn: ["error", "warn"],
+    info: ["error", "warn", "info"],
+    debug: ["error", "warn", "info", "debug"],
+};
 function Logger() {
     const options = {
         silent: false,
         globalData: {},
         transport: consoleTransport,
+        logLevel: "info",
     };
     const entries = { expected: [], unexpected: [] };
     function stringify(entries) {
@@ -61,7 +68,7 @@ function Logger() {
         else {
             entries.unexpected.push(entry);
         }
-        options.silent || options.transport(entry);
+        options.silent || (logPrintLevel[options.logLevel].includes(level) && options.transport(entry));
     }
     return {
         entries,
@@ -69,6 +76,12 @@ function Logger() {
         info: (data) => log("info", data),
         warn: (data) => log("warn", data),
         error: (data) => log("error", data),
+        setLogLevel(level) {
+            options.logLevel = level;
+        },
+        setSilent(silent) {
+            options.silent = silent;
+        },
         setTransport(transport) {
             options.transport = transport;
             return this;

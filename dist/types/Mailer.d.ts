@@ -23,7 +23,7 @@ export type MailerConfig = {
 export type RenderFunction = (template: string, view: Record<string, string>) => string;
 type Logger = Pick<typeof console, "warn" | "info">;
 export declare function Mailer(nodeMailer: typeof NodeMailer, render: RenderFunction, logger: Logger | undefined, config: MailerConfig): {
-    send(to: string, template: MailTemplate, variables: Variables): Promise<void>;
+    send: (to: string, template: MailTemplate, variables: Variables) => Promise<void>;
 };
 export type Mailer = ReturnType<typeof Mailer>;
 export {};
