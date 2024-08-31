@@ -35,9 +35,10 @@ export async function createKafkaSource<T>(
 
   async function run() {
     await consumer.run({
-      eachMessage: async ({ message, partition }) => {
+      eachMessage: ({ message, partition }) => {
         stream.push(JSON.parse(message.value?.toString() as string) as T)
         offsetProvider.setOffset(partition, message.offset)
+        return Promise.resolve()
       },
     })
 
@@ -76,12 +77,12 @@ export async function createKafkaSource<T>(
     return new Promise(resolve => {
       const resetTimer = startLater(resolve, headStartMs)
       stream
-        .on("data", data => {
+        .on("data", (data: T) => {
           processFn(data)
           resetTimer()
         })
         .on("error", console.error)
-      run()
+      void run()
     })
   }
 
