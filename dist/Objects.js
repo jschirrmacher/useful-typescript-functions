@@ -15,7 +15,7 @@ function arrayize(obj) {
     if (obj !== null && typeof obj === "object" && !(obj instanceof Date)) {
         return Object.entries(obj).flatMap(([key, value]) => {
             if (value === null) {
-                return [[key, value]];
+                return [[key, null]];
             }
             return arrayize(value).map(e => [concat(key, e[0]), e[1]]);
         });
@@ -33,25 +33,34 @@ function flatten(obj) {
     return Object.fromEntries(arrayize(obj));
 }
 exports.flatten = flatten;
+function setPath(obj, path, value) {
+    const [head, ...tail] = path;
+    const index = Number(head);
+    if (path.length === 0) {
+        return value;
+    }
+    if (!isNaN(index)) {
+        const array = Array.isArray(obj) ? obj : [];
+        array[index] = setPath((array[index] ?? {}), tail, value);
+        return array;
+    }
+    else {
+        const nestedObj = obj && typeof obj === "object" ? { ...obj } : {};
+        const key = head;
+        nestedObj[key] = setPath(nestedObj[key], tail, value);
+        return nestedObj;
+    }
+}
 /**
  * Inflate a flattened object (with paths as property names) to a deeply nested object
  *
  * @param obj Flattened object
  * @returns Re-inflated object, which may contain a nesting structure.
  */
-function inflate(obj) {
-    return Object.entries(obj).reduce((obj, [path, value]) => {
-        const splitted = path.split(".");
-        const last = splitted.pop();
-        let pointer = obj;
-        splitted.forEach(p => {
-            if (!pointer[p]) {
-                pointer[p] = {};
-            }
-            pointer = pointer[p];
-        });
-        pointer[last] = value;
-        return obj;
+function inflate(paths) {
+    return Object.entries(paths).reduce((acc, [path, value]) => {
+        const pathParts = path.replace(/\[(\d+)\]/g, ".$1").split(".");
+        return setPath(acc, pathParts, value);
     }, {});
 }
 exports.inflate = inflate;

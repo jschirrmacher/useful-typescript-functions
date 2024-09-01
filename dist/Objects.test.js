@@ -46,6 +46,9 @@ const Objects_1 = require("./Objects");
         (0, vitest_1.describe)("arrayize", () => {
             (0, vitest_1.it)("should return a list of property values", () => {
                 (0, vitest_1.expect)((0, Objects_1.arrayize)(null)).toEqual([["", null]]);
+                (0, vitest_1.expect)((0, Objects_1.arrayize)(1)).toEqual([["", 1]]);
+                const date = new Date();
+                (0, vitest_1.expect)((0, Objects_1.arrayize)(date)).toEqual([["", date]]);
                 (0, vitest_1.expect)((0, Objects_1.arrayize)({ a: 1 })).toEqual([["a", 1]]);
                 (0, vitest_1.expect)((0, Objects_1.arrayize)({ a: 1, b: { c: 2 } })).toEqual([
                     ["a", 1],
@@ -60,16 +63,32 @@ const Objects_1 = require("./Objects");
                 const date = new Date();
                 (0, vitest_1.expect)((0, Objects_1.arrayize)({ a: date })).toEqual([["a", date]]);
             });
+            (0, vitest_1.it)("should arrayize arrays", () => {
+                (0, vitest_1.expect)((0, Objects_1.arrayize)([3, 2, 1])).toEqual([
+                    ["0", 3],
+                    ["1", 2],
+                    ["2", 1],
+                ]);
+            });
         });
         (0, vitest_1.describe)("flatten", () => {
             (0, vitest_1.it)("should return a flat object with all values", () => {
                 const date = new Date();
                 (0, vitest_1.expect)((0, Objects_1.flatten)(null)).toEqual({ "": null });
+                (0, vitest_1.expect)((0, Objects_1.flatten)(42)).toEqual({ "": 42 });
                 (0, vitest_1.expect)((0, Objects_1.flatten)({ a: undefined })).toEqual({ a: undefined });
                 (0, vitest_1.expect)((0, Objects_1.flatten)({ a: 1 })).toEqual({ a: 1 });
                 (0, vitest_1.expect)((0, Objects_1.flatten)({ a: date })).toEqual({ a: date });
                 (0, vitest_1.expect)((0, Objects_1.flatten)({ a: 1, b: { c: 2 } })).toEqual({ a: 1, "b.c": 2 });
                 (0, vitest_1.expect)((0, Objects_1.flatten)({ a: { b: 1 }, b: { a: 2 } })).toEqual({ "a.b": 1, "b.a": 2 });
+                (0, vitest_1.expect)((0, Objects_1.flatten)([3, 2, 1])).toEqual({ "0": 3, "1": 2, "2": 1 });
+                (0, vitest_1.expect)((0, Objects_1.flatten)({ a: [3, 2, { b: 1 }] })).toEqual({ "a.0": 3, "a.1": 2, "a.2.b": 1 });
+            });
+        });
+        (0, vitest_1.describe)("inflate", () => {
+            (0, vitest_1.it)("should inflate flattened data correctly", () => {
+                const data = { a: { b: [3, 2, 1], c: true, d: new Date() } };
+                (0, vitest_1.expect)((0, Objects_1.inflate)((0, Objects_1.flatten)(data))).toEqual(data);
             });
         });
     });

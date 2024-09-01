@@ -1,25 +1,27 @@
-import { Arrayized, BaseType, StringIndexableObject } from "./types.js";
+import { Arrayized, NestedValue, PathValue } from "./types.js";
 /**
  * Creates a list of path - value pairs. The paths represent the nesting levels of the properties in the given object.
  *
  * @param obj An object to be destructured to a list of properties and values
  * @returns List of paths with values in the given object
  */
-export declare function arrayize(obj: BaseType | StringIndexableObject): Arrayized[];
+export declare function arrayize(obj: unknown): Arrayized[];
 /**
  * Flatten deeply nested objects to have new properties containing paths with "." as separator for nesting levels.
  *
  * @param obj original, deeply nested object
  * @returns flat object of only one level, but with property names containing paths of the original object
  */
-export declare function flatten(obj: BaseType | StringIndexableObject): StringIndexableObject;
+export declare function flatten(obj: unknown): {
+    [k: string]: unknown;
+};
 /**
  * Inflate a flattened object (with paths as property names) to a deeply nested object
  *
  * @param obj Flattened object
  * @returns Re-inflated object, which may contain a nesting structure.
  */
-export declare function inflate(obj: StringIndexableObject): StringIndexableObject;
+export declare function inflate<T extends PathValue>(paths: T): NestedValue<keyof T & string>;
 /**
  * Find the differences between two objects.
  *
@@ -28,7 +30,7 @@ export declare function inflate(obj: StringIndexableObject): StringIndexableObje
  * @param include defines which values the result should include
  * @returns a new object containing only the properties which are modified with the original and the modified values.
  */
-export declare function diff(from: StringIndexableObject, other: StringIndexableObject, include?: "from" | "to" | "both"): StringIndexableObject;
+export declare function diff(from: object, other: object, include?: "from" | "to" | "both"): unknown;
 /**
  * Checks if an object contains another one.
  *
@@ -36,9 +38,9 @@ export declare function diff(from: StringIndexableObject, other: StringIndexable
  * @param other object which might be contained in first object
  * @returns true if the current object contains the other one.
  */
-export declare function objectContains(object: StringIndexableObject, other: StringIndexableObject): boolean;
-export declare function objectContaining(contains: StringIndexableObject): {
-    asymmetricMatch(obj: StringIndexableObject): boolean;
+export declare function objectContains<T extends object>(object: T, other: T): boolean;
+export declare function objectContaining<T extends object>(contains: T): {
+    asymmetricMatch(obj: T): boolean;
 };
 /**
  * Rename an attribute in an object. This higher level function returns a mapper which can be used
@@ -81,7 +83,7 @@ export declare function mutate<T>(obj: T, attributes: readonly (keyof T)[], chan
 export declare function extract<T extends object>(obj: T, props: (keyof T)[]): {
     [k: string]: T[keyof T];
 };
-export declare function createObject<T extends StringIndexableObject>(obj: T, writableAttributes?: Array<keyof T>): T & {
+export declare function createObject<T extends object>(obj: T, writableAttributes?: (keyof T)[]): T & {
     /**
      * Find the differences to the given object.
      *
@@ -89,7 +91,7 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
      * @param include defines which values the result should include
      * @returns a new object containing only the properties which are modified with the original and the modified values.
      */
-    diff(other: Partial<T>, include?: "from" | "to" | "both"): StringIndexableObject;
+    diff(other: Partial<T>, include?: "from" | "to" | "both"): unknown;
     /**
      * Checks if the current object contains another one.
      *
@@ -108,7 +110,9 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
      *
      * @returns flat object of only one level, but with property names containing paths of the original object
      */
-    flatten(): StringIndexableObject & {
+    flatten(): {
+        [k: string]: unknown;
+    } & {
         /**
          * Find the differences to the given object.
          *
@@ -116,43 +120,33 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
          * @param include defines which values the result should include
          * @returns a new object containing only the properties which are modified with the original and the modified values.
          */
-        diff(other: Partial<StringIndexableObject>, include?: "from" | "to" | "both"): StringIndexableObject;
+        diff(other: Partial<{
+            [k: string]: unknown;
+        }>, include?: "from" | "to" | "both"): unknown;
         /**
          * Checks if the current object contains another one.
          *
          * @param other object to compare with
          * @returns true if the current object contains the other one.
          */
-        contains(other: Partial<StringIndexableObject>): boolean;
+        contains(other: Partial<{
+            [k: string]: unknown;
+        }>): boolean;
         /**
          * Creates a list of path/value pairs out of the current object. The paths represent the nesting levels of the properties in the given object.
          *
          * @returns List of paths with values in the given object
          */
         arrayize(): Arrayized[];
-        flatten(): StringIndexableObject & any;
+        flatten(): {
+            [k: string]: unknown;
+        } & any;
         /**
          * Inflate a flattened object (with paths as property names) to a deeply nested object
          *
          * @returns Re-inflated object, which may contain a nesting structure.
          */
-        inflate(): StringIndexableObject & any;
-        /**
-         * Mutates the object.
-         * It ignores both, attributes not contained in the original object, and attributes not allowed to be changed.
-         *
-         * @param changes An object with the attributes and values to change
-         * @returns The mutated object
-         */
-        mutate(changes: Partial<StringIndexableObject>): StringIndexableObject;
-        /**
-         * Extract some properties of the object.
-         * @param props
-         * @returns a new object containing only the extracted properties and values.
-         */
-        extract(props: (string | number)[]): {
-            [k: string]: BaseType | StringIndexableObject;
-        } & {
+        inflate(): object & {
             /**
              * Find the differences to the given object.
              *
@@ -160,18 +154,14 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
              * @param include defines which values the result should include
              * @returns a new object containing only the properties which are modified with the original and the modified values.
              */
-            diff(other: Partial<{
-                [k: string]: BaseType | StringIndexableObject;
-            }>, include?: "from" | "to" | "both"): StringIndexableObject;
+            diff(other: object, include?: "from" | "to" | "both"): unknown;
             /**
              * Checks if the current object contains another one.
              *
              * @param other object to compare with
              * @returns true if the current object contains the other one.
              */
-            contains(other: Partial<{
-                [k: string]: BaseType | StringIndexableObject;
-            }>): boolean;
+            contains(other: object): boolean;
             /**
              * Creates a list of path/value pairs out of the current object. The paths represent the nesting levels of the properties in the given object.
              *
@@ -183,13 +173,10 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
              *
              * @returns flat object of only one level, but with property names containing paths of the original object
              */
-            flatten(): StringIndexableObject & any;
-            /**
-             * Inflate a flattened object (with paths as property names) to a deeply nested object
-             *
-             * @returns Re-inflated object, which may contain a nesting structure.
-             */
-            inflate(): StringIndexableObject & any;
+            flatten(): {
+                [k: string]: unknown;
+            } & any;
+            inflate(): object & any;
             /**
              * Mutates the object.
              * It ignores both, attributes not contained in the original object, and attributes not allowed to be changed.
@@ -197,22 +184,98 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
              * @param changes An object with the attributes and values to change
              * @returns The mutated object
              */
-            mutate(changes: Partial<{
-                [k: string]: BaseType | StringIndexableObject;
-            }>): {
-                [k: string]: BaseType | StringIndexableObject;
+            mutate(changes: object): object;
+            /**
+             * Extract some properties of the object.
+             * @param props
+             * @returns a new object containing only the extracted properties and values.
+             */
+            extract(props: never[]): {
+                [k: string]: never;
+            } & {
+                /**
+                 * Find the differences to the given object.
+                 *
+                 * @param other object
+                 * @param include defines which values the result should include
+                 * @returns a new object containing only the properties which are modified with the original and the modified values.
+                 */
+                diff(other: Partial<{
+                    [k: string]: never;
+                }>, include?: "from" | "to" | "both"): unknown;
+                /**
+                 * Checks if the current object contains another one.
+                 *
+                 * @param other object to compare with
+                 * @returns true if the current object contains the other one.
+                 */
+                contains(other: Partial<{
+                    [k: string]: never;
+                }>): boolean;
+                /**
+                 * Creates a list of path/value pairs out of the current object. The paths represent the nesting levels of the properties in the given object.
+                 *
+                 * @returns List of paths with values in the given object
+                 */
+                arrayize(): Arrayized[];
+                /**
+                 * Flatten the current object to have new properties containing paths with "." as separator for nesting levels.
+                 *
+                 * @returns flat object of only one level, but with property names containing paths of the original object
+                 */
+                flatten(): {
+                    [k: string]: unknown;
+                } & any;
+                /**
+                 * Inflate a flattened object (with paths as property names) to a deeply nested object
+                 *
+                 * @returns Re-inflated object, which may contain a nesting structure.
+                 */
+                inflate(): object & any;
+                /**
+                 * Mutates the object.
+                 * It ignores both, attributes not contained in the original object, and attributes not allowed to be changed.
+                 *
+                 * @param changes An object with the attributes and values to change
+                 * @returns The mutated object
+                 */
+                mutate(changes: Partial<{
+                    [k: string]: never;
+                }>): {
+                    [k: string]: never;
+                };
+                extract(props: (string | number)[]): {
+                    [k: string]: never;
+                } & any;
             };
-            extract(props: (string | number)[]): {
-                [k: string]: BaseType | StringIndexableObject;
-            } & any;
         };
+        /**
+         * Mutates the object.
+         * It ignores both, attributes not contained in the original object, and attributes not allowed to be changed.
+         *
+         * @param changes An object with the attributes and values to change
+         * @returns The mutated object
+         */
+        mutate(changes: Partial<{
+            [k: string]: unknown;
+        }>): {
+            [k: string]: unknown;
+        };
+        /**
+         * Extract some properties of the object.
+         * @param props
+         * @returns a new object containing only the extracted properties and values.
+         */
+        extract(props: (string | number)[]): {
+            [k: string]: unknown;
+        } & any;
     };
     /**
      * Inflate a flattened object (with paths as property names) to a deeply nested object
      *
      * @returns Re-inflated object, which may contain a nesting structure.
      */
-    inflate(): StringIndexableObject & {
+    inflate(): object & {
         /**
          * Find the differences to the given object.
          *
@@ -220,14 +283,14 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
          * @param include defines which values the result should include
          * @returns a new object containing only the properties which are modified with the original and the modified values.
          */
-        diff(other: Partial<StringIndexableObject>, include?: "from" | "to" | "both"): StringIndexableObject;
+        diff(other: object, include?: "from" | "to" | "both"): unknown;
         /**
          * Checks if the current object contains another one.
          *
          * @param other object to compare with
          * @returns true if the current object contains the other one.
          */
-        contains(other: Partial<StringIndexableObject>): boolean;
+        contains(other: object): boolean;
         /**
          * Creates a list of path/value pairs out of the current object. The paths represent the nesting levels of the properties in the given object.
          *
@@ -239,8 +302,10 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
          *
          * @returns flat object of only one level, but with property names containing paths of the original object
          */
-        flatten(): StringIndexableObject & any;
-        inflate(): StringIndexableObject & any;
+        flatten(): {
+            [k: string]: unknown;
+        } & any;
+        inflate(): object & any;
         /**
          * Mutates the object.
          * It ignores both, attributes not contained in the original object, and attributes not allowed to be changed.
@@ -248,14 +313,14 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
          * @param changes An object with the attributes and values to change
          * @returns The mutated object
          */
-        mutate(changes: Partial<StringIndexableObject>): StringIndexableObject;
+        mutate(changes: object): object;
         /**
          * Extract some properties of the object.
          * @param props
          * @returns a new object containing only the extracted properties and values.
          */
-        extract(props: (string | number)[]): {
-            [k: string]: BaseType | StringIndexableObject;
+        extract(props: never[]): {
+            [k: string]: never;
         } & {
             /**
              * Find the differences to the given object.
@@ -265,8 +330,8 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
              * @returns a new object containing only the properties which are modified with the original and the modified values.
              */
             diff(other: Partial<{
-                [k: string]: BaseType | StringIndexableObject;
-            }>, include?: "from" | "to" | "both"): StringIndexableObject;
+                [k: string]: never;
+            }>, include?: "from" | "to" | "both"): unknown;
             /**
              * Checks if the current object contains another one.
              *
@@ -274,7 +339,7 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
              * @returns true if the current object contains the other one.
              */
             contains(other: Partial<{
-                [k: string]: BaseType | StringIndexableObject;
+                [k: string]: never;
             }>): boolean;
             /**
              * Creates a list of path/value pairs out of the current object. The paths represent the nesting levels of the properties in the given object.
@@ -287,13 +352,15 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
              *
              * @returns flat object of only one level, but with property names containing paths of the original object
              */
-            flatten(): StringIndexableObject & any;
+            flatten(): {
+                [k: string]: unknown;
+            } & any;
             /**
              * Inflate a flattened object (with paths as property names) to a deeply nested object
              *
              * @returns Re-inflated object, which may contain a nesting structure.
              */
-            inflate(): StringIndexableObject & any;
+            inflate(): object & any;
             /**
              * Mutates the object.
              * It ignores both, attributes not contained in the original object, and attributes not allowed to be changed.
@@ -302,12 +369,12 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
              * @returns The mutated object
              */
             mutate(changes: Partial<{
-                [k: string]: BaseType | StringIndexableObject;
+                [k: string]: never;
             }>): {
-                [k: string]: BaseType | StringIndexableObject;
+                [k: string]: never;
             };
             extract(props: (string | number)[]): {
-                [k: string]: BaseType | StringIndexableObject;
+                [k: string]: never;
             } & any;
         };
     };
@@ -336,7 +403,7 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
          */
         diff(other: Partial<{
             [k: string]: T[keyof T];
-        }>, include?: "from" | "to" | "both"): StringIndexableObject;
+        }>, include?: "from" | "to" | "both"): unknown;
         /**
          * Checks if the current object contains another one.
          *
@@ -357,7 +424,9 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
          *
          * @returns flat object of only one level, but with property names containing paths of the original object
          */
-        flatten(): StringIndexableObject & {
+        flatten(): {
+            [k: string]: unknown;
+        } & {
             /**
              * Find the differences to the given object.
              *
@@ -365,43 +434,33 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
              * @param include defines which values the result should include
              * @returns a new object containing only the properties which are modified with the original and the modified values.
              */
-            diff(other: Partial<StringIndexableObject>, include?: "from" | "to" | "both"): StringIndexableObject;
+            diff(other: Partial<{
+                [k: string]: unknown;
+            }>, include?: "from" | "to" | "both"): unknown;
             /**
              * Checks if the current object contains another one.
              *
              * @param other object to compare with
              * @returns true if the current object contains the other one.
              */
-            contains(other: Partial<StringIndexableObject>): boolean;
+            contains(other: Partial<{
+                [k: string]: unknown;
+            }>): boolean;
             /**
              * Creates a list of path/value pairs out of the current object. The paths represent the nesting levels of the properties in the given object.
              *
              * @returns List of paths with values in the given object
              */
             arrayize(): Arrayized[];
-            flatten(): StringIndexableObject & any;
+            flatten(): {
+                [k: string]: unknown;
+            } & any;
             /**
              * Inflate a flattened object (with paths as property names) to a deeply nested object
              *
              * @returns Re-inflated object, which may contain a nesting structure.
              */
-            inflate(): StringIndexableObject & any;
-            /**
-             * Mutates the object.
-             * It ignores both, attributes not contained in the original object, and attributes not allowed to be changed.
-             *
-             * @param changes An object with the attributes and values to change
-             * @returns The mutated object
-             */
-            mutate(changes: Partial<StringIndexableObject>): StringIndexableObject;
-            /**
-             * Extract some properties of the object.
-             * @param props
-             * @returns a new object containing only the extracted properties and values.
-             */
-            extract(props: (string | number)[]): {
-                [k: string]: BaseType | StringIndexableObject;
-            } & {
+            inflate(): object & {
                 /**
                  * Find the differences to the given object.
                  *
@@ -409,18 +468,14 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
                  * @param include defines which values the result should include
                  * @returns a new object containing only the properties which are modified with the original and the modified values.
                  */
-                diff(other: Partial<{
-                    [k: string]: BaseType | StringIndexableObject;
-                }>, include?: "from" | "to" | "both"): StringIndexableObject;
+                diff(other: object, include?: "from" | "to" | "both"): unknown;
                 /**
                  * Checks if the current object contains another one.
                  *
                  * @param other object to compare with
                  * @returns true if the current object contains the other one.
                  */
-                contains(other: Partial<{
-                    [k: string]: BaseType | StringIndexableObject;
-                }>): boolean;
+                contains(other: object): boolean;
                 /**
                  * Creates a list of path/value pairs out of the current object. The paths represent the nesting levels of the properties in the given object.
                  *
@@ -432,13 +487,10 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
                  *
                  * @returns flat object of only one level, but with property names containing paths of the original object
                  */
-                flatten(): StringIndexableObject & any;
-                /**
-                 * Inflate a flattened object (with paths as property names) to a deeply nested object
-                 *
-                 * @returns Re-inflated object, which may contain a nesting structure.
-                 */
-                inflate(): StringIndexableObject & any;
+                flatten(): {
+                    [k: string]: unknown;
+                } & any;
+                inflate(): object & any;
                 /**
                  * Mutates the object.
                  * It ignores both, attributes not contained in the original object, and attributes not allowed to be changed.
@@ -446,22 +498,98 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
                  * @param changes An object with the attributes and values to change
                  * @returns The mutated object
                  */
-                mutate(changes: Partial<{
-                    [k: string]: BaseType | StringIndexableObject;
-                }>): {
-                    [k: string]: BaseType | StringIndexableObject;
+                mutate(changes: object): object;
+                /**
+                 * Extract some properties of the object.
+                 * @param props
+                 * @returns a new object containing only the extracted properties and values.
+                 */
+                extract(props: never[]): {
+                    [k: string]: never;
+                } & {
+                    /**
+                     * Find the differences to the given object.
+                     *
+                     * @param other object
+                     * @param include defines which values the result should include
+                     * @returns a new object containing only the properties which are modified with the original and the modified values.
+                     */
+                    diff(other: Partial<{
+                        [k: string]: never;
+                    }>, include?: "from" | "to" | "both"): unknown;
+                    /**
+                     * Checks if the current object contains another one.
+                     *
+                     * @param other object to compare with
+                     * @returns true if the current object contains the other one.
+                     */
+                    contains(other: Partial<{
+                        [k: string]: never;
+                    }>): boolean;
+                    /**
+                     * Creates a list of path/value pairs out of the current object. The paths represent the nesting levels of the properties in the given object.
+                     *
+                     * @returns List of paths with values in the given object
+                     */
+                    arrayize(): Arrayized[];
+                    /**
+                     * Flatten the current object to have new properties containing paths with "." as separator for nesting levels.
+                     *
+                     * @returns flat object of only one level, but with property names containing paths of the original object
+                     */
+                    flatten(): {
+                        [k: string]: unknown;
+                    } & any;
+                    /**
+                     * Inflate a flattened object (with paths as property names) to a deeply nested object
+                     *
+                     * @returns Re-inflated object, which may contain a nesting structure.
+                     */
+                    inflate(): object & any;
+                    /**
+                     * Mutates the object.
+                     * It ignores both, attributes not contained in the original object, and attributes not allowed to be changed.
+                     *
+                     * @param changes An object with the attributes and values to change
+                     * @returns The mutated object
+                     */
+                    mutate(changes: Partial<{
+                        [k: string]: never;
+                    }>): {
+                        [k: string]: never;
+                    };
+                    extract(props: (string | number)[]): {
+                        [k: string]: never;
+                    } & any;
                 };
-                extract(props: (string | number)[]): {
-                    [k: string]: BaseType | StringIndexableObject;
-                } & any;
             };
+            /**
+             * Mutates the object.
+             * It ignores both, attributes not contained in the original object, and attributes not allowed to be changed.
+             *
+             * @param changes An object with the attributes and values to change
+             * @returns The mutated object
+             */
+            mutate(changes: Partial<{
+                [k: string]: unknown;
+            }>): {
+                [k: string]: unknown;
+            };
+            /**
+             * Extract some properties of the object.
+             * @param props
+             * @returns a new object containing only the extracted properties and values.
+             */
+            extract(props: (string | number)[]): {
+                [k: string]: unknown;
+            } & any;
         };
         /**
          * Inflate a flattened object (with paths as property names) to a deeply nested object
          *
          * @returns Re-inflated object, which may contain a nesting structure.
          */
-        inflate(): StringIndexableObject & {
+        inflate(): object & {
             /**
              * Find the differences to the given object.
              *
@@ -469,14 +597,14 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
              * @param include defines which values the result should include
              * @returns a new object containing only the properties which are modified with the original and the modified values.
              */
-            diff(other: Partial<StringIndexableObject>, include?: "from" | "to" | "both"): StringIndexableObject;
+            diff(other: object, include?: "from" | "to" | "both"): unknown;
             /**
              * Checks if the current object contains another one.
              *
              * @param other object to compare with
              * @returns true if the current object contains the other one.
              */
-            contains(other: Partial<StringIndexableObject>): boolean;
+            contains(other: object): boolean;
             /**
              * Creates a list of path/value pairs out of the current object. The paths represent the nesting levels of the properties in the given object.
              *
@@ -488,8 +616,10 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
              *
              * @returns flat object of only one level, but with property names containing paths of the original object
              */
-            flatten(): StringIndexableObject & any;
-            inflate(): StringIndexableObject & any;
+            flatten(): {
+                [k: string]: unknown;
+            } & any;
+            inflate(): object & any;
             /**
              * Mutates the object.
              * It ignores both, attributes not contained in the original object, and attributes not allowed to be changed.
@@ -497,14 +627,14 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
              * @param changes An object with the attributes and values to change
              * @returns The mutated object
              */
-            mutate(changes: Partial<StringIndexableObject>): StringIndexableObject;
+            mutate(changes: object): object;
             /**
              * Extract some properties of the object.
              * @param props
              * @returns a new object containing only the extracted properties and values.
              */
-            extract(props: (string | number)[]): {
-                [k: string]: BaseType | StringIndexableObject;
+            extract(props: never[]): {
+                [k: string]: never;
             } & {
                 /**
                  * Find the differences to the given object.
@@ -514,8 +644,8 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
                  * @returns a new object containing only the properties which are modified with the original and the modified values.
                  */
                 diff(other: Partial<{
-                    [k: string]: BaseType | StringIndexableObject;
-                }>, include?: "from" | "to" | "both"): StringIndexableObject;
+                    [k: string]: never;
+                }>, include?: "from" | "to" | "both"): unknown;
                 /**
                  * Checks if the current object contains another one.
                  *
@@ -523,7 +653,7 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
                  * @returns true if the current object contains the other one.
                  */
                 contains(other: Partial<{
-                    [k: string]: BaseType | StringIndexableObject;
+                    [k: string]: never;
                 }>): boolean;
                 /**
                  * Creates a list of path/value pairs out of the current object. The paths represent the nesting levels of the properties in the given object.
@@ -536,13 +666,15 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
                  *
                  * @returns flat object of only one level, but with property names containing paths of the original object
                  */
-                flatten(): StringIndexableObject & any;
+                flatten(): {
+                    [k: string]: unknown;
+                } & any;
                 /**
                  * Inflate a flattened object (with paths as property names) to a deeply nested object
                  *
                  * @returns Re-inflated object, which may contain a nesting structure.
                  */
-                inflate(): StringIndexableObject & any;
+                inflate(): object & any;
                 /**
                  * Mutates the object.
                  * It ignores both, attributes not contained in the original object, and attributes not allowed to be changed.
@@ -551,12 +683,12 @@ export declare function createObject<T extends StringIndexableObject>(obj: T, wr
                  * @returns The mutated object
                  */
                 mutate(changes: Partial<{
-                    [k: string]: BaseType | StringIndexableObject;
+                    [k: string]: never;
                 }>): {
-                    [k: string]: BaseType | StringIndexableObject;
+                    [k: string]: never;
                 };
                 extract(props: (string | number)[]): {
-                    [k: string]: BaseType | StringIndexableObject;
+                    [k: string]: never;
                 } & any;
             };
         };

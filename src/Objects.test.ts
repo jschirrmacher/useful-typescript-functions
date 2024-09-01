@@ -6,6 +6,7 @@ import {
   extract,
   flatten,
   getMutation,
+  inflate,
   mutate,
   objectContaining,
   objectContains,
@@ -69,6 +70,9 @@ describe("Objects", () => {
     describe("arrayize", () => {
       it("should return a list of property values", () => {
         expect(arrayize(null)).toEqual([["", null]])
+        expect(arrayize(1)).toEqual([["", 1]])
+        const date = new Date()
+        expect(arrayize(date)).toEqual([["", date]])
         expect(arrayize({ a: 1 })).toEqual([["a", 1]])
         expect(arrayize({ a: 1, b: { c: 2 } })).toEqual([
           ["a", 1],
@@ -84,17 +88,35 @@ describe("Objects", () => {
         const date = new Date()
         expect(arrayize({ a: date })).toEqual([["a", date]])
       })
+
+      it("should arrayize arrays", () => {
+        expect(arrayize([3, 2, 1])).toEqual([
+          ["0", 3],
+          ["1", 2],
+          ["2", 1],
+        ])
+      })
     })
 
     describe("flatten", () => {
       it("should return a flat object with all values", () => {
         const date = new Date()
         expect(flatten(null)).toEqual({ "": null })
+        expect(flatten(42)).toEqual({ "": 42 })
         expect(flatten({ a: undefined })).toEqual({ a: undefined })
         expect(flatten({ a: 1 })).toEqual({ a: 1 })
         expect(flatten({ a: date })).toEqual({ a: date })
         expect(flatten({ a: 1, b: { c: 2 } })).toEqual({ a: 1, "b.c": 2 })
         expect(flatten({ a: { b: 1 }, b: { a: 2 } })).toEqual({ "a.b": 1, "b.a": 2 })
+        expect(flatten([3, 2, 1])).toEqual({ "0": 3, "1": 2, "2": 1 })
+        expect(flatten({ a: [3, 2, { b: 1 }] })).toEqual({ "a.0": 3, "a.1": 2, "a.2.b": 1 })
+      })
+    })
+
+    describe("inflate", () => {
+      it("should inflate flattened data correctly", () => {
+        const data = { a: { b: [3, 2, 1], c: true, d: new Date() } }
+        expect(inflate(flatten(data))).toEqual(data)
       })
     })
   })
@@ -115,7 +137,7 @@ describe("Objects", () => {
 
   describe("objectContaining()", () => {
     it("should return an object containing an asymmetricMatch() function", () => {
-      const matcher = objectContaining({ a: 1 })
+      const matcher = objectContaining({ a: 1 } as Record<string, unknown>)
       expect(matcher).toBeInstanceOf(Object)
       expect(matcher).toHaveProperty("asymmetricMatch")
       expect(matcher.asymmetricMatch({ a: 1 })).toBe(true)
