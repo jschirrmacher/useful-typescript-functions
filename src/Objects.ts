@@ -1,4 +1,4 @@
-import { Arrayized, BaseType, StringIndexableObject } from "./types.js"
+import { Arrayized, NestedValue, PathValue } from "./types.js"
 
 function union(arr1: string[], arr2: string[]) {
   return [...new Set([...arr1, ...arr2])]
@@ -10,13 +10,13 @@ function union(arr1: string[], arr2: string[]) {
  * @param obj An object to be destructured to a list of properties and values
  * @returns List of paths with values in the given object
  */
-export function arrayize(obj: BaseType | StringIndexableObject): Arrayized[] {
+export function arrayize(obj: unknown): Arrayized[] {
   const concat = (...parts: string[]) => parts.filter(x => x).join(".")
 
   if (obj !== null && typeof obj === "object" && !(obj instanceof Date)) {
     return Object.entries(obj).flatMap(([key, value]) => {
       if (value === null) {
-        return [[key, value]]
+        return [[key, null]]
       }
       return arrayize(value).map(e => [concat(key, e[0]), e[1]]) as Arrayized[]
     })
@@ -30,8 +30,32 @@ export function arrayize(obj: BaseType | StringIndexableObject): Arrayized[] {
  * @param obj original, deeply nested object
  * @returns flat object of only one level, but with property names containing paths of the original object
  */
-export function flatten(obj: BaseType | StringIndexableObject): StringIndexableObject {
+export function flatten(obj: unknown) {
   return Object.fromEntries(arrayize(obj))
+}
+
+function setPath<T extends object, K extends string>(
+  obj: T,
+  path: K[],
+  value: NestedValue<K>,
+): T | NestedValue<K> {
+  const [head, ...tail] = path
+  const index = Number(head)
+
+  if (path.length === 0) {
+    return value as T | NestedValue<K>
+  }
+
+  if (!isNaN(index)) {
+    const array = Array.isArray(obj) ? obj : []
+    array[index] = setPath((array[index] ?? {}) as T, tail, value)
+    return array as unknown as T | NestedValue<K>
+  } else {
+    const nestedObj = obj && typeof obj === "object" ? { ...obj } : ({} as T)
+    const key = head as unknown as keyof T
+    nestedObj[key] = setPath(nestedObj[key] as object, tail, value) as T[keyof T]
+    return nestedObj as T | NestedValue<K>
+  }
 }
 
 /**
@@ -40,20 +64,14 @@ export function flatten(obj: BaseType | StringIndexableObject): StringIndexableO
  * @param obj Flattened object
  * @returns Re-inflated object, which may contain a nesting structure.
  */
-export function inflate(obj: StringIndexableObject) {
-  return Object.entries(obj).reduce((obj, [path, value]) => {
-    const splitted = path.split(".")
-    const last = splitted.pop() as string
-    let pointer = obj
-    splitted.forEach(p => {
-      if (!pointer[p]) {
-        pointer[p] = {}
-      }
-      pointer = pointer[p] as StringIndexableObject
-    })
-    pointer[last] = value
-    return obj
-  }, {} as StringIndexableObject)
+export function inflate<T extends PathValue>(paths: T) {
+  return Object.entries(paths).reduce(
+    (acc, [path, value]) => {
+      const pathParts = path.replace(/\[(\d+)\]/g, ".$1").split(".") as (keyof T & string)[]
+      return setPath(acc as object, pathParts, value as NestedValue<keyof T & string>)
+    },
+    {} as object | NestedValue<keyof T & string>,
+  ) as NestedValue<keyof T & string>
 }
 
 /**
@@ -65,8 +83,8 @@ export function inflate(obj: StringIndexableObject) {
  * @returns a new object containing only the properties which are modified with the original and the modified values.
  */
 export function diff(
-  from: StringIndexableObject,
-  other: StringIndexableObject,
+  from: object,
+  other: object,
   include: "from" | "to" | "both" = "both",
 ) {
   const values1 = flatten(from)
@@ -82,7 +100,7 @@ export function diff(
     .filter(p => values1[p] !== values2[p])
     .map(p => valueMapping[include](p))
 
-  return inflate(Object.fromEntries(changes) as StringIndexableObject)
+  return inflate(Object.fromEntries(changes))
 }
 
 /**
@@ -92,14 +110,14 @@ export function diff(
  * @param other object which might be contained in first object
  * @returns true if the current object contains the other one.
  */
-export function objectContains(object: StringIndexableObject, other: StringIndexableObject) {
+export function objectContains<T extends object>(object: T, other: T) {
   const flat1 = flatten(object)
   return arrayize(other).every(([key, value]) => flat1[key] === value)
 }
 
-export function objectContaining(contains: StringIndexableObject) {
+export function objectContaining<T extends object>(contains: T) {
   return {
-    asymmetricMatch(obj: StringIndexableObject) {
+    asymmetricMatch(obj: T) {
       return objectContains(obj, contains)
     },
   }
@@ -162,11 +180,11 @@ export function extract<T extends object>(obj: T, props: (keyof T)[]) {
   return Object.fromEntries(props.map(prop => [prop, obj[prop]]))
 }
 
-export function createObject<T extends StringIndexableObject>(
+export function createObject<T extends object>(
   obj: T,
-  writableAttributes: Array<keyof T> = Object.getOwnPropertyNames(obj),
+  writableAttributes = Object.getOwnPropertyNames(obj) as Array<keyof T>,
 ) {
-  const data: T = obj || {}
+  const data: T = obj || ({} as T)
 
   const base = {
     /**
@@ -214,7 +232,7 @@ export function createObject<T extends StringIndexableObject>(
      * @returns Re-inflated object, which may contain a nesting structure.
      */
     inflate() {
-      return createObject(inflate(data))
+      return createObject(inflate(data as PathValue) as object)
     },
 
     /**
