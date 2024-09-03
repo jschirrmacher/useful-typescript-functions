@@ -41,6 +41,15 @@ const Objects_1 = require("./Objects");
         (0, vitest_1.it)("works with 'to' param", () => {
             (0, vitest_1.expect)((0, Objects_1.diff)({ a: 1, b: 2, c: undefined, d: 4 }, { a: 1, b: 3, d: undefined, e: 5 }, "to")).toEqual({ b: 3, d: undefined, e: 5 });
         });
+        (0, vitest_1.it)("works with type changes", () => {
+            (0, vitest_1.expect)((0, Objects_1.diff)({ a: [3, 2, 1] }, { a: [{ b: 2 }, { c: 4 }] }, "both")).toEqual({
+                a: [
+                    { b: { from: undefined, to: 2 }, from: 3, to: undefined },
+                    { c: { from: undefined, to: 4 }, from: 2, to: undefined },
+                    { from: 1, to: undefined },
+                ],
+            });
+        });
     });
     (0, vitest_1.describe)("flattenInflate", () => {
         (0, vitest_1.describe)("arrayize", () => {

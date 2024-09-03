@@ -64,6 +64,16 @@ describe("Objects", () => {
         diff({ a: 1, b: 2, c: undefined, d: 4 }, { a: 1, b: 3, d: undefined, e: 5 }, "to"),
       ).toEqual({ b: 3, d: undefined, e: 5 })
     })
+
+    it("works with type changes", () => {
+      expect(diff({ a: [3, 2, 1] }, { a: [{ b: 2 }, { c: 4 }] }, "both")).toEqual({
+        a: [
+          { b: { from: undefined, to: 2 }, from: 3, to: undefined },
+          { c: { from: undefined, to: 4 }, from: 2, to: undefined },
+          { from: 1, to: undefined },
+        ],
+      })
+    })
   })
 
   describe("flattenInflate", () => {
