@@ -74,6 +74,30 @@ describe("Objects", () => {
         ],
       })
     })
+
+    it("solves #219", () => {
+      const objBefore = { config: { numbers: [1] } }
+      const objAfter = { config: { numbers: [{ value: 1, decimalPlaces: 0, unit: "mm" }] } }
+      expect(diff(objBefore, objAfter)).toEqual({
+        config: {
+          numbers: [{ from: 1, decimalPlaces: { to: 0 }, unit: { to: "mm" }, value: { to: 1 } }],
+        },
+      })
+      expect(JSON.stringify(diff(objBefore, objAfter, "from"), null, 2)).toEqual(
+        JSON.stringify(
+          {
+            config: { numbers: [{ decimalPlaces: undefined, unit: undefined, value: undefined }] },
+          },
+          null,
+          2,
+        ),
+      )
+      expect(diff(objBefore, objAfter, "to")).toEqual({
+        config: {
+          numbers: [{ decimalPlaces: 0, unit: "mm", value: 1 }],
+        },
+      })
+    })
   })
 
   describe("flattenInflate", () => {
