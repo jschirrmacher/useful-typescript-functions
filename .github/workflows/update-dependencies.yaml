@@ -42,7 +42,7 @@ jobs:
       - name: Create Pull Request
         id: createPR
         if: steps.gitCheck.outputs.modified == 'true'
-        uses: peter-evans/create-pull-request@5b4a9f6a9e2af26e5f02351490b90d01eb8ec1e5 # v5
+        uses: peter-evans/create-pull-request@v7
         with:
           branch: update-dependencies
           author: Dependency Updater <dependency-updater@users.noreply.github.com>
@@ -59,7 +59,7 @@ jobs:
 
       - name: Enable auth-merge
         if: steps.gitCheck.outputs.modified == 'true'
-        uses: peter-evans/enable-pull-request-automerge@a660677d5469627102a1c1e11409dd063606628d # v3
-        with:
-          pull-request-number: ${{ steps.createPR.outputs.pull-request-number }}
-          merge-method: rebase
+        run: gh pr merge --rebase --auto "1"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
