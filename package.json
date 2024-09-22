@@ -46,7 +46,7 @@
     "version:patch": "npm run build && npm version patch && git push --follow-tags && npm publish",
     "version:minor": "npm run build && npm version minor && git push --follow-tags && npm publish",
     "version:major": "npm run build && npm version major && git push --follow-tags && npm publish",
-    "update": "npx -y npm-check-updates -d -u -e 2"
+    "update": "npx -y npm-check-updates -du"
   },
   "author": {
     "name": "Joachim Schirrmacher",
