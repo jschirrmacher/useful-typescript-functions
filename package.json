@@ -75,7 +75,7 @@
     "vitest": "1.6.1"
   },
   "peerDependencies": {
-    "express": "4.x",
+    "express": "^4.0.0 || ^5.0.0",
     "express-fileupload": "1.x",
     "kafkajs": "2.x",
     "nodemailer": "6.x",
