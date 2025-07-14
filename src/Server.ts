@@ -21,6 +21,7 @@ export interface ServerConfiguration {
   logRequests?: boolean
   fileUpload?: { maxSize: number }
   staticFiles?: string | string[]
+  exitHandler?: () => void
 }
 
 export class RestError extends Error {
@@ -96,13 +97,18 @@ export async function setupServer(options?: Partial<ServerConfiguration>) {
   return new Promise<Required<ServerConfiguration>>(resolve => {
     config.server?.listen(config.port, () => {
       config.logger.info(`Running on http://localhost:${config.port}`)
-      process.on("beforeExit", () => stopServer(config))
+      config.exitHandler = () => stopServer(config)
+      process.on("beforeExit", config.exitHandler)
       resolve(config as Required<ServerConfiguration>)
     })
   })
 }
 
 export function stopServer(config: ServerConfiguration) {
+  if (config.exitHandler) {
+    process.removeListener("beforeExit", config.exitHandler)
+    config.exitHandler = undefined
+  }
   config.server?.close()
 }
 

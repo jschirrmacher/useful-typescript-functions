@@ -91,9 +91,9 @@ describe("Mailer", () => {
     })
   })
 
-  it("should log errors", () => {
+  it("should log errors", async () => {
     const { send } = setup("error")
-    void expect(send(john, template, variables)).rejects.toEqual(new Error("sendMail failed"))
+    await expect(send(john, template, variables)).rejects.toEqual(new Error("sendMail failed"))
   })
 
   it("should suppress email sending if smtp config is missing", async () => {

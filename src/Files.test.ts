@@ -162,9 +162,9 @@ describe("Files", () => {
       })
     })
 
-    it("should throw an error if the file doesn't exist", () => {
+    it("should throw an error if the file doesn't exist", async () => {
       const { readYAML } = setupConfig()
-      void expect(readYAML("other.yaml")).rejects.toEqual({ code: "ENOENT" })
+      await expect(readYAML("other.yaml")).rejects.toEqual({ code: "ENOENT" })
     })
   })
 
