@@ -58,7 +58,6 @@
     "@types/node": "20.19.7",
     "@types/nodemailer": "6.4.17",
     "@types/supertest": "6.0.3",
-    "@types/yamljs": "0.2.34",
     "@vitest/coverage-v8": "3.2.4",
     "eslint": "8.57.1",
     "eslint-config-prettier": "^9.1.0",
@@ -81,6 +80,6 @@
     "nodemailer": "6.x",
     "sharp": "0.33.x",
     "typeorm": "0.3.x",
-    "yamljs": "0.3.x"
+    "yaml": "2.x"
   }
 }

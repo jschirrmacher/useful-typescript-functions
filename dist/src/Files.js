@@ -58,8 +58,8 @@ function Files({ sharp, fs } = {}) {
             });
         },
         readYAML: async (fileWithPath) => {
-            const yaml = (await import("yamljs")).default;
-            return yaml.parse((await readFile(fileWithPath, { encoding: "utf-8" })).toString());
+            const { parse } = await import("yaml");
+            return parse((await readFile(fileWithPath, { encoding: "utf-8" })).toString());
         },
         /**
          * Read YAML configuration file.

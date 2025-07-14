@@ -37,10 +37,10 @@ Reads in a JSON file and parses strings that look like ISO dates as Date objects
 
 ## `readYAML(fileWithPath: string)`
 
-Reads in a YAML file. If you want to use this function, you need to install `yamljs` as a dependency.
+Reads in a YAML file. If you want to use this function, you need to install `yaml` as a dependency.
 
 ## `readConfig(fileWithPath: string, withoutSecrets?: boolean)`
 
-Reads in a YAML formatted config file. If you want to use this function, you need to install `yamljs` as a dependency.
+Reads in a YAML formatted config file. If you want to use this function, you need to install `yaml` as a dependency.
 
 If the `withoutSecrets` parameter is omitted, a possible `secrets` entry in the config file is removed. If the config file is not found, a default configuration with only `{ isDefault: true }` is returned, making it easier to check for.

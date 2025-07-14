@@ -14,6 +14,13 @@ A dependency-free collection of useful functions for applications in TypeScript.
 
 Version 4 of `useful-typescript-functions` only works with ESM.
 
+## Upgrade from version 4.4.0
+
+Starting with version 4.5.0, the `Files` module uses the `yaml` package instead of `yamljs` for YAML parsing. If you use the `readYAML()` or `readConfig()` functions, you need to:
+
+- Replace `yamljs` with `yaml` in your dependencies: `npm uninstall yamljs && npm install yaml`
+- No code changes are required - the API remains the same
+
 ## Upgrade from version 2
 
 There are some breaking changes of version 3.
