@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "dist",
+    "rootDir": "src",
     "module": "NodeNext",
     "target": "ESNext",
     "lib": ["ES2023"],
@@ -12,6 +13,6 @@
     "strict": true,
     "skipLibCheck": true,
   },
-  "include": ["./src/**/*.ts", "vite.config.ts"],
+  "include": ["./src/**/*.ts"],
   "exclude": ["./dist/**/*"],
 }
