@@ -55,7 +55,7 @@
   "devDependencies": {
     "@types/express": "4.17.25",
     "@types/express-fileupload": "1.5.1",
-    "@types/node": "20.19.25",
+    "@types/node": "20.19.26",
     "@types/nodemailer": "6.4.21",
     "@types/supertest": "6.0.3",
     "@vitest/coverage-v8": "3.2.4",
